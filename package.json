@@ -7,7 +7,7 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "hono": "^4.0.0",
+        "hono": "^4.12.22",
         "js-yaml": "^4.1.0"
     },
     "devDependencies": {
