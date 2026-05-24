@@ -11,7 +11,7 @@
         "js-yaml": "^4.1.0"
     },
     "devDependencies": {
-        "@cloudflare/workers-types": "^4.0.0",
+        "@cloudflare/workers-types": "^4.20260524.1",
         "@types/js-yaml": "^4.0.9",
         "esbuild": "^0.28.0",
         "highlight.js": "^11.0.0",
