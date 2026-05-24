@@ -150,7 +150,7 @@ a.mod.os-packages { box-shadow: inset 2px 0 0 var(--os-packages); padding-left: 
  * doesn't crowd the module pills on the left. */
 .nav-search {
     margin-left: auto;
-    width: 240px;
+    width: 180px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -161,7 +161,7 @@ a.mod.os-packages { box-shadow: inset 2px 0 0 var(--os-packages); padding-left: 
     position: relative;
     color: var(--text-muted);
 }
-.nav-search:focus-within { border-color: var(--accent); color: var(--text); width: 320px; transition: width 0.15s ease; }
+.nav-search:focus-within { border-color: var(--accent); color: var(--text); width: 260px; transition: width 0.15s ease; }
 .nav-search input {
     flex: 1;
     background: transparent;
