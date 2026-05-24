@@ -170,6 +170,30 @@ describe('/rules proxy validation', () => {
     })
 })
 
+describe('security headers', () => {
+    it('sets X-Frame-Options: DENY on 404 responses', async () => {
+        const res = await app.request('/does-not-exist', undefined, baseEnv)
+        expect(res.headers.get('X-Frame-Options')).toBe('DENY')
+    })
+
+    it('sets X-Content-Type-Options: nosniff on all responses', async () => {
+        const res = await app.request('/_health', undefined, baseEnv)
+        expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff')
+    })
+
+    it('sets Referrer-Policy on all responses', async () => {
+        const res = await app.request('/_health', undefined, baseEnv)
+        expect(res.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin')
+    })
+
+    it('sets Content-Security-Policy with frame-ancestors and connect-src', async () => {
+        const res = await app.request('/_health', undefined, baseEnv)
+        const csp = res.headers.get('Content-Security-Policy') ?? ''
+        expect(csp).toContain("frame-ancestors 'none'")
+        expect(csp).toContain('challenges.cloudflare.com')
+    })
+})
+
 describe('500 page does not leak err.message', () => {
     it('error body is the generic copy, not the thrown message', async () => {
         // Route doesn't exist as an app.get — request a path that triggers

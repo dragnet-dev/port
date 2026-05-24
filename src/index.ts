@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { secureHeaders } from 'hono/secure-headers'
 import { homeRoute } from './routes/home'
 import { moduleRoute } from './routes/module'
 import { incidentsRoute } from './routes/incidents'
@@ -24,6 +25,24 @@ import type { Env } from './types'
 // exercise routes without spinning up wrangler. The Worker entry-point below
 // is the default export.
 export const app = new Hono<{ Bindings: Env }>()
+
+// Security headers on every response via Hono's built-in secureHeaders middleware.
+// 'unsafe-inline' in script-src covers the small Turnstile callback defined
+// inline in the layout <head>. All other JS is served from /assets/*.
+app.use('*', secureHeaders({
+    xFrameOptions:        'DENY',
+    xContentTypeOptions:  'nosniff',
+    referrerPolicy:       'strict-origin-when-cross-origin',
+    contentSecurityPolicy: {
+        defaultSrc:  ["'self'"],
+        scriptSrc:   ["'self'", "'unsafe-inline'", 'https://challenges.cloudflare.com'],
+        styleSrc:    ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc:     ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc:      ["'self'", 'data:'],
+        connectSrc:  ["'self'", 'https://challenges.cloudflare.com'],
+        frameAncestors: ["'none'"],
+    },
+}))
 
 // Edge-cache rendered HTML for 30 min. Pages are deterministic given the
 // upstream haul data (which is itself KV-cached for ~30 min in fetchRaw), so
@@ -85,7 +104,10 @@ app.get('/api/index', async (c) => {
 app.notFound(async (c) => {
     if (c.env.ASSETS) {
         const assetRes = await c.env.ASSETS.fetch(c.req.raw)
-        if (assetRes.status !== 404) return assetRes
+        // Clone so downstream middleware (security headers) can mutate the Response.
+        // ASSETS responses are immutable in workerd; a plain `new Response(r.body, r)`
+        // creates a mutable copy that middleware can freely modify.
+        if (assetRes.status !== 404) return new Response(assetRes.body, assetRes)
     }
     const html = errorPage({
         code:  404,

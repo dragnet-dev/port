@@ -280,6 +280,48 @@ export async function fetchIncident(env: Env, module: string, id: string): Promi
     return inc
 }
 
+// scanJSONLStream reads a JSONL response body as a stream and returns the first
+// record whose `id` field matches. Cancels the download on first match so we
+// don't burn bandwidth pulling the full shard (up to 50 MB) when the target
+// record is near the top.
+async function scanJSONLStream(body: ReadableStream<Uint8Array>, id: string): Promise<Incident | null> {
+    const reader = body.getReader()
+    const decoder = new TextDecoder()
+    let buf = ''
+    try {
+        while (true) {
+            const { done, value } = await reader.read()
+            if (done) {
+                if (buf.trim()) {
+                    try {
+                        const raw = JSON.parse(buf) as Record<string, unknown>
+                        if (raw.id === id) return normalizeIncident(raw)
+                    } catch { /* skip malformed */ }
+                }
+                break
+            }
+            buf += decoder.decode(value, { stream: true })
+            const nl = buf.lastIndexOf('\n')
+            if (nl === -1) continue
+            const chunk = buf.slice(0, nl)
+            buf = buf.slice(nl + 1)
+            for (const line of chunk.split('\n')) {
+                if (!line) continue
+                try {
+                    const raw = JSON.parse(line) as Record<string, unknown>
+                    if (raw.id === id) {
+                        reader.cancel()
+                        return normalizeIncident(raw)
+                    }
+                } catch { /* skip malformed */ }
+            }
+        }
+    } finally {
+        reader.releaseLock()
+    }
+    return null
+}
+
 // fetchIncidentFromShard reads the right JSONL shard from haul and scans it
 // for the requested incident ID. Shards can be up to 50 MB so we deliberately
 // DON'T cache the raw shard (Cloudflare KV has a 25 MiB value limit); only
@@ -323,15 +365,10 @@ async function fetchIncidentFromShard(env: Env, module: string, id: string): Pro
         const url = `${intelBase}/${path}`
         const res = await fetch(url, { headers: { 'User-Agent': `${env.SITE_URL}/port` } })
         if (!res.ok) continue   // shard doesn't exist — try the next one
+        if (!res.body) continue
 
-        const text = await res.text()
-        for (const line of text.split('\n')) {
-            if (!line) continue
-            try {
-                const raw = JSON.parse(line) as Record<string, unknown>
-                if (raw.id === id) return normalizeIncident(raw)
-            } catch { /* skip malformed line */ }
-        }
+        const result = await scanJSONLStream(res.body, id)
+        if (result) return result
     }
     return null
 }
