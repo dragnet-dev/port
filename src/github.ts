@@ -130,15 +130,22 @@ function normalizeIncident(raw: unknown): Incident {
     const rawRefs = Array.isArray(r.references)
         ? (r.references as unknown[]).filter(v => typeof v === 'string') as string[]
         : []
-    let sources: Incident['sources'] = []
-    if (Array.isArray(r.sources) && r.sources.length > 0) {
-        sources = r.sources as Incident['sources']
-    } else if (typeof r.source === 'string' && r.source) {
-        const id = r.source
+    // Convert a source ID string to a display {name, url} pair.
+    const resolveSource = (id: string): Incident['sources'][number] => {
         const name = SOURCE_NAME[id] ?? id.replace(/_/g, ' ')
         const domainRe = SOURCE_DOMAIN[id]
         const url = domainRe ? (rawRefs.find(ref => domainRe.test(ref)) ?? '') : ''
-        sources = [{ name, url }]
+        return { name, url }
+    }
+    let sources: Incident['sources'] = []
+    if (Array.isArray(r.sources) && r.sources.length > 0) {
+        // Schema emits sources as string IDs (e.g. ["nvd", "ghsa"]) — convert each
+        // to an IncidentSource with a display name and a matched reference URL.
+        sources = (r.sources as unknown[])
+            .filter(s => typeof s === 'string' && s.length > 0)
+            .map(s => resolveSource(s as string))
+    } else if (typeof r.source === 'string' && r.source) {
+        sources = [resolveSource(r.source)]
     }
 
     const validSeverities = new Set(['critical', 'high', 'medium', 'low'])
@@ -148,10 +155,14 @@ function normalizeIncident(raw: unknown): Incident {
 
     const packages = (Array.isArray(r.packages) ? r.packages : []).map((p: unknown) => {
         const pkg = p as Record<string, unknown>
+        // Schema field is affected_versions; curated YAML may use versions — accept either.
+        const versions = Array.isArray(pkg.versions) ? pkg.versions as string[]
+            : Array.isArray(pkg.affected_versions) ? pkg.affected_versions as string[]
+            : []
         return {
             name:         String(pkg.name ?? ''),
             ecosystem:    String(pkg.ecosystem ?? ''),
-            versions:     Array.isArray(pkg.versions) ? pkg.versions as string[] : [],
+            versions,
             safe_version: str(pkg.safe_version),
             safe_digest:  str(pkg.safe_digest),
         }
@@ -203,8 +214,11 @@ function normalizeIncident(raw: unknown): Incident {
         severity,
         attack_type:      str(r.attack_type) ?? '',
         description:      str(r.description),
-        campaign:         str(r.campaign),
-        actor:            str(r.actor),
+        // Schema: campaign is {name, actor, confidence} object (empty {} when none).
+        campaign:         str(r.campaign) ??
+                          str((r.campaign as Record<string, unknown> | undefined)?.name),
+        actor:            str(r.actor) ??
+                          str((r.campaign as Record<string, unknown> | undefined)?.actor),
         published,
         compromise_start: str(compromiseWindow?.start),
         compromise_end:   str(compromiseWindow?.end),
@@ -216,7 +230,11 @@ function normalizeIncident(raw: unknown): Incident {
         behaviours:       Array.isArray(r.behaviours) ? r.behaviours as Incident['behaviours'] : [],
         mitre_techniques: Array.isArray(r.mitre_techniques) ? r.mitre_techniques as Incident['mitre_techniques'] : [],
         exposure:         isNonEmptyObj(r.exposure) ? r.exposure as Incident['exposure'] : undefined,
-        model_indicators: Array.isArray(r.model_indicators) ? r.model_indicators as Incident['model_indicators'] : undefined,
+        // Schema nests model_indicators under indicators{}; also accept top-level for YAML.
+        model_indicators: Array.isArray(r.model_indicators) ? r.model_indicators as Incident['model_indicators']
+            : Array.isArray((r.indicators as Record<string, unknown> | undefined)?.model_indicators)
+                ? (r.indicators as Record<string, unknown>).model_indicators as Incident['model_indicators']
+                : undefined,
         references:       Array.isArray(r.references) ? (r.references as unknown[]).filter(v => typeof v === 'string') as string[] : [],
         summary:          str(r.summary),
         container_ext:    r.container_ext as Incident['container_ext'],
