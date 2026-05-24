@@ -25,7 +25,19 @@ export async function moduleRoute(c: Context<{ Bindings: Env }>) {
     }
 
     const idx = await fetchHomeSlice(c.env, moduleId)
-    if (!idx) return c.html(errorPage('Module data unavailable', c.env), 503)
+    if (!idx) {
+        // Module is live but data hasn't synced yet — show a holding page rather
+        // than a 503. The scheduled handler will build the KV slice on next cron fire.
+        const html = `<div class="container page">
+    <div class="coming-soon-page">
+        <div class="coming-soon-icon">${mod.icon}</div>
+        <h1>${escHtml(mod.name)}</h1>
+        <p>${escHtml(mod.description)}</p>
+        <p style="font-size:13px;color:var(--text-subtle)">Data is syncing — check back shortly.</p>
+    </div>
+</div>`
+        return c.html(baseLayout(mod.name, html, c.env, `/${moduleId}`))
+    }
 
     const recent = [...idx.incidents]
         .sort((a, b) => new Date(b.published ?? 0).getTime() - new Date(a.published ?? 0).getTime())
@@ -65,6 +77,3 @@ export async function moduleRoute(c: Context<{ Bindings: Env }>) {
     return c.html(baseLayout(mod.name, html, c.env, `/${moduleId}`))
 }
 
-function errorPage(msg: string, env: Env): string {
-    return baseLayout('Error', `<div class="container page"><p style="color:var(--text-muted)">${escHtml(msg)}</p></div>`, env)
-}

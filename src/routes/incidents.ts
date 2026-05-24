@@ -41,7 +41,16 @@ export async function incidentsRoute(c: Context<{ Bindings: Env }>) {
     const page      = Math.max(1, parseInt(c.req.query('page') ?? '1', 10))
 
     const idx = await fetchHomeSlice(c.env, moduleId)
-    if (!idx) return c.html(baseLayout('Error', '<div class="container page"><p style="color:var(--text-muted)">Module data unavailable.</p></div>', c.env), 503)
+    if (!idx) {
+        const html = `<div class="container page">
+    <div class="coming-soon-page">
+        <div class="coming-soon-icon">${mod.icon}</div>
+        <h1>${escHtml(mod.name)} Incidents</h1>
+        <p style="font-size:13px;color:var(--text-subtle)">Data is syncing — check back shortly.</p>
+    </div>
+</div>`
+        return c.html(baseLayout(`${mod.name} Incidents`, html, c.env, `/${moduleId}`))
+    }
 
     // When the curated index is empty (dragnet still building it), fall back
     // to the full search index for this module. Smaller per-record shape, but

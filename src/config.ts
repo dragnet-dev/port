@@ -99,7 +99,7 @@ export const MODULES: Module[] = [
         id:          "os-packages",
         name:        "OS Packages",
         description: "Vulnerabilities in OS-level packages across Debian, Ubuntu, Alpine, and RHEL ecosystems sourced via OSV.",
-        live:        false,
+        live:        true,
         colour:      "#3fb950",
         icon:        "🐧",
     },

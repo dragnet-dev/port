@@ -7,6 +7,7 @@ import { incidentRoute } from './routes/incident'
 import { containerIncidentRoute } from './routes/containerIncident'
 import { cveIncidentRoute } from './routes/cveIncident'
 import { malwareIncidentRoute } from './routes/malwareIncident'
+import { osPackageIncidentRoute } from './routes/osPackageIncident'
 import { actorRoute } from './routes/actors'
 import { actorsIndexRoute } from './routes/actorsIndex'
 import { feedsHubRoute, feedProxyRoute } from './routes/feeds'
@@ -81,6 +82,7 @@ app.get('/container/incidents/:id',      containerIncidentRoute)
 app.get('/malware/incidents/:id',         malwareIncidentRoute)
 app.get('/cve/incidents/:id',            cveIncidentRoute('cve'))
 app.get('/ransomware/incidents/:id',     cveIncidentRoute('ransomware'))
+app.get('/os-packages/incidents/:id',    osPackageIncidentRoute)
 app.get('/:module/incidents/:id',        incidentRoute)
 
 // /api/index — union of every live module's curated incident index, used by

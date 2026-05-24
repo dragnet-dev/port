@@ -107,6 +107,7 @@ export interface Incident {
     container_ext?:    ContainerExtension
     cve_ext?:          CVEExtension
     malware_ext?:      MalwareExtension
+    os_package_ext?:   OSPackageExtension
 }
 
 export interface IncidentSource {
@@ -306,4 +307,17 @@ export interface MalwareExtension {
     malware_family?: string
     malware_type?:   string
     platforms?:      string[]
+}
+
+// OSPackageExtension carries OS-package metadata from the os-packages module.
+// One incident = one CVE; os_packages lists every distro/package pair hit.
+export interface OSPackageExtension {
+    os_packages?: OSPackageEntry[]
+}
+
+export interface OSPackageEntry {
+    distro:        string   // e.g. "debian:12", "ubuntu:22.04", "alpine:3.19", "rhel:9"
+    package_name:  string
+    fixed_version?: string
+    status?:       string   // "fixed" | "unfixed" | "not-affected"
 }
