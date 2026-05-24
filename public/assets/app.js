@@ -220,14 +220,17 @@
             var endpoint = isImageRef(value) ? '/check-image' : '/check';
             checkInput && checkInput.classList.add('loading');
             checkResult.textContent = '';
+            var tsToken = window._tsToken || '';
             fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ value: value }),
+                body: JSON.stringify({ value: value, 'cf-turnstile-response': tsToken }),
             })
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
                     checkInput && checkInput.classList.remove('loading');
+                    window._tsToken = '';
+                    window.turnstile && window.turnstile.reset && window.turnstile.reset();
                     if (data.error) {
                         checkResult.textContent = data.error;
                         checkResult.className = 'check-result';

@@ -39,6 +39,8 @@ export function baseLayout(title: string, content: string, env: Env, currentPath
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="/assets/highlight.min.js" defer></script>
     <script src="/assets/app.js" defer></script>
+    <script>function onTurnstileSuccess(t){window._tsToken=t;}</script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
     <a href="#main" class="skip-link">Skip to content</a>

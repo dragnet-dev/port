@@ -26,7 +26,7 @@ export async function containerIncidentRoute(c: Context<{ Bindings: Env }>) {
             code:  404,
             title: 'Incident not found',
             body:  `<p>No container incident with ID <code>${escHtml(id)}</code>.</p>`,
-            cta:   { href: '/container', label: 'Browse all incidents' },
+            cta:   { href: '/container/incidents', label: 'Browse all incidents' },
         })
         return c.html(baseLayout('Not found', html, c.env), 404)
     }
@@ -37,7 +37,7 @@ export async function containerIncidentRoute(c: Context<{ Bindings: Env }>) {
             code:  404,
             title: 'Incident not found',
             body:  `<p>No container incident with ID <code>${escHtml(id)}</code>.</p>`,
-            cta:   { href: '/container', label: 'Browse all incidents' },
+            cta:   { href: '/container/incidents', label: 'Browse all incidents' },
         })
         return c.html(baseLayout('Not found', html, c.env), 404)
     }
@@ -96,7 +96,7 @@ export async function containerIncidentRoute(c: Context<{ Bindings: Env }>) {
     // Build "copy all" payload: repository:tag per line
     const allTags = Array.from(familyMap.entries())
         .flatMap(([fam, tags]) => tags.length > 0 ? tags.map(t => `${fam}:${t}`) : [fam])
-        .join('\\n')
+        .join('\n')
 
     const chipStyle = `background:var(--bg-elevated);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-family:monospace;font-size:12px;color:var(--text-muted)`
 

@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import { fetchRootIndex, fetchHomeSlice } from '../github'
-import { MODULES } from '../config'
+import { MODULES, getTurnstileSiteKey } from '../config'
 import { baseLayout, escHtml } from '../ui/layout'
 import { incidentCard, relativeTime } from '../ui/components'
 import type { Env, IncidentSummary } from '../types'
@@ -13,8 +13,8 @@ function daysSince(dateStr: string | undefined): number {
 function trendingScore(inc: IncidentSummary): number {
     const severityWeight: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 }
     const ageDecay = Math.max(0, 30 - daysSince(inc.published)) / 30
-    return (severityWeight[inc.severity] ?? 1) * inc.source_count *
-        Math.log10((inc.impact?.total_weekly_downloads ?? 0) + 1) * ageDecay
+    return (severityWeight[inc.severity] ?? 1) * (inc.source_count + 1) *
+        Math.log10(inc.ioc_count + 1) * ageDecay
 }
 
 export async function homeRoute(c: Context<{ Bindings: Env }>) {
@@ -103,6 +103,7 @@ export async function homeRoute(c: Context<{ Bindings: Env }>) {
                 data-placeholders='["@tanstack/react-router","git-tanstack.com","node:18.10.0","tj-actions/changed-files@v35","openai/fake-privacy-filter"]'
                 autocomplete="off" />
             <button class="check-btn" type="submit">Check</button>
+            <div class="cf-turnstile" data-sitekey="${escHtml(getTurnstileSiteKey(c.env))}" data-callback="onTurnstileSuccess" data-size="invisible" style="display:none"></div>
         </form>
         <div id="check-result" class="check-result"></div>
     </div>

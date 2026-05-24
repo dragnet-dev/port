@@ -37,6 +37,7 @@ export async function incidentsRoute(c: Context<{ Bindings: Env }>) {
     const severity  = c.req.query('severity') ?? ''
     const attackType= c.req.query('attack_type') ?? ''
     const ecosystem = c.req.query('ecosystem') ?? ''
+    const campaign  = c.req.query('campaign') ?? ''
     const page      = Math.max(1, parseInt(c.req.query('page') ?? '1', 10))
 
     const idx = await fetchHomeSlice(c.env, moduleId)
@@ -69,6 +70,7 @@ export async function incidentsRoute(c: Context<{ Bindings: Env }>) {
     if (severity) items = items.filter(i => i.severity === severity)
     if (attackType) items = items.filter(i => i.attack_type === attackType)
     if (ecosystem) items = items.filter(i => i.ecosystem === ecosystem)
+    if (campaign) items = items.filter(i => i.campaign === campaign)
 
     items = [...items].sort((a, b) => new Date(b.published ?? 0).getTime() - new Date(a.published ?? 0).getTime())
 
@@ -82,6 +84,7 @@ export async function incidentsRoute(c: Context<{ Bindings: Env }>) {
         if (severity)   p.set('severity', severity)
         if (attackType) p.set('attack_type', attackType)
         if (ecosystem)  p.set('ecosystem', ecosystem)
+        if (campaign)   p.set('campaign', campaign)
         Object.entries(extra).forEach(([k, v]) => v ? p.set(k, v) : p.delete(k))
         return p.toString() ? `?${p.toString()}` : ''
     }

@@ -120,7 +120,9 @@ export async function incidentRoute(c: Context<{ Bindings: Env }>) {
         : ''
 
     const sourceChips = (incident.sources ?? []).map(s =>
-        `<a href="${escHtml(s.url)}" target="_blank" rel="noopener" class="source-chip">${escHtml(s.name)}</a>`
+        s.url
+            ? `<a href="${escHtml(s.url)}" target="_blank" rel="noopener" class="source-chip">${escHtml(s.name)}</a>`
+            : `<span class="source-chip">${escHtml(s.name)}</span>`
     ).join('')
 
     const pkgs = incident.packages ?? []

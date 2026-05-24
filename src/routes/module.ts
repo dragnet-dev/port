@@ -40,8 +40,6 @@ export async function moduleRoute(c: Context<{ Bindings: Env }>) {
         `<a href="/${moduleId}/incidents?campaign=${encodeURIComponent(c)}" style="font-size:13px;color:var(--accent)">${escHtml(c)}</a>`
     ).join(' · ')
 
-    const feedBase = `https://${c.env.SITE_URL.replace(/^https?:\/\//, '')}/${moduleId}/feeds`
-
     const html = `<div class="container page">
     <div class="page-header">
         <h1 class="page-title">${mod.icon} ${escHtml(mod.name)}</h1>
@@ -59,21 +57,7 @@ export async function moduleRoute(c: Context<{ Bindings: Env }>) {
             <div style="display:flex;flex-direction:column;gap:6px">${campaignLinks}</div>` : ''}
 
             <div class="section-header" style="margin-top:24px">Feeds</div>
-            <div class="feed-block">
-                <h3>IOC Feed (JSON)</h3>
-                <div class="feed-url-row">
-                    <span class="feed-url">${escHtml(feedBase)}/ioc.json</span>
-                    <button class="copy-btn" data-copy="${escHtml(feedBase)}/ioc.json">Copy</button>
-                </div>
-            </div>
-            <div class="feed-block">
-                <h3>STIX 2.1</h3>
-                <div class="feed-url-row">
-                    <span class="feed-url">${escHtml(feedBase)}/stix.json</span>
-                    <button class="copy-btn" data-copy="${escHtml(feedBase)}/stix.json">Copy</button>
-                </div>
-            </div>
-            <a href="/feeds" style="font-size:13px;color:var(--accent)">All feeds →</a>
+            <a href="/feeds" style="font-size:13px;color:var(--accent)">View all IOC &amp; intelligence feeds →</a>
         </div>
     </div>
 </div>`
