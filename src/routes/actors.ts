@@ -78,7 +78,7 @@ export async function actorRoute(c: Context<{ Bindings: Env }>) {
 
     ${softwareChips ? `<div style="margin-bottom:24px">
         <div class="section-header">Software &amp; tooling</div>
-        <div>${softwareChips}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">${softwareChips}</div>
     </div>` : ''}
 
     <div style="margin-bottom:24px">
