@@ -118,9 +118,7 @@ async function syncManifest(env: Env): Promise<void> {
 
     // Purge raw: keys for every changed file. The cache key format is set in
     // src/github.ts:fetchRaw.
-    for (const path of toInvalidate) {
-        await env.CACHE.delete(`raw:${path}`)
-    }
+    await Promise.all(toInvalidate.map(path => env.CACHE.delete(`raw:${path}`)))
 
     // For shard changes, also purge the per-incident inc: entries for the
     // affected module — they're derived from the shard contents.
@@ -129,9 +127,7 @@ async function syncManifest(env: Env): Promise<void> {
         const m = path.match(/^([^/]+)\/incidents\/all\/.+\.jsonl$/)
         if (m) touchedModules.add(m[1])
     }
-    for (const moduleId of touchedModules) {
-        await purgeIncByPrefix(env, `inc:${moduleId}:`)
-    }
+    await Promise.all([...touchedModules].map(mod => purgeIncByPrefix(env, `inc:${mod}:`)))
 
     // Persist the new snapshot. 7d TTL — long enough to survive cron gaps,
     // short enough that the key isn't orphaned forever if we change schemes.
@@ -289,9 +285,7 @@ async function purgeIncByPrefix(env: Env, prefix: string): Promise<void> {
     let cursor: string | undefined
     do {
         const page = await env.CACHE.list({ prefix, cursor })
-        for (const k of page.keys) {
-            await env.CACHE.delete(k.name)
-        }
+        await Promise.all(page.keys.map(k => env.CACHE.delete(k.name)))
         cursor = page.list_complete ? undefined : page.cursor
     } while (cursor)
 }
