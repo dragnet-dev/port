@@ -1,10 +1,10 @@
 import { Context } from 'hono'
-import { fetchActor, fetchActorAliasIndex, fetchIndex } from '../github'
+import { fetchActor, fetchActorAliasIndex, fetchHomeSlice } from '../github'
 import { MODULES } from '../config'
 import { baseLayout, errorPage, escHtml } from '../ui/layout'
 import { incidentCard } from '../ui/components'
 import { isValidSlug } from '../lib/validate'
-import type { Env, ThreatActor } from '../types'
+import type { Env, IncidentSummary, ThreatActor } from '../types'
 
 // resolveActorSlug runs an incoming URL slug through the alias index so
 // /actors/midnight-blizzard or /actors/cozy-bear resolve to the canonical
@@ -93,14 +93,36 @@ export async function actorRoute(c: Context<{ Bindings: Env }>) {
 }
 
 async function findLinkedIncidents(env: Env, actor: ThreatActor) {
-    const liveModules = MODULES.filter(m => m.live)
-    const fetched = await Promise.all(
-        liveModules.map(async mod => ({ mod, idx: await fetchIndex(env, mod.id) }))
-    )
-
     const needles = new Set<string>()
     needles.add(actor.name.toLowerCase())
     for (const a of actor.aliases ?? []) needles.add(a.toLowerCase())
+
+    // Fast path: check actor-inc:{name} KV entries written by the scheduled
+    // handler. These are pre-built from the home slices so the lookup is a few
+    // KV reads instead of downloading all module indexes.
+    const seenIds = new Set<string>()
+    const kvHits: Array<IncidentSummary & { module: string }> = []
+    for (const needle of needles) {
+        const raw = await env.CACHE.get(`actor-inc:${needle}`)
+        if (!raw) continue
+        try {
+            const entries = JSON.parse(raw) as Array<IncidentSummary & { module: string }>
+            for (const e of entries) {
+                if (!seenIds.has(e.id)) {
+                    seenIds.add(e.id)
+                    kvHits.push(e)
+                }
+            }
+        } catch { /* ignore corrupt entry */ }
+    }
+    if (kvHits.length > 0) return kvHits
+
+    // Fallback: scan home slices (fetched from KV or, on miss, from haul).
+    // Uses fetchHomeSlice rather than the full index to avoid 57 MB downloads.
+    const liveModules = MODULES.filter(m => m.live)
+    const fetched = await Promise.all(
+        liveModules.map(async mod => ({ mod, idx: await fetchHomeSlice(env, mod.id) }))
+    )
 
     return fetched.flatMap(({ mod, idx }) => {
         if (!idx) return []

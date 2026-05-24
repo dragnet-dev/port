@@ -1,5 +1,5 @@
 import type { Context } from 'hono'
-import { fetchIndex } from '../github'
+import { fetchHomeSlice } from '../github'
 import { MODULES } from '../config'
 import { verifyTurnstile } from '../turnstile'
 import type { Env } from '../types'
@@ -39,7 +39,7 @@ export async function checkRoute(c: Context<{ Bindings: Env }>) {
     const checkType  = detectCheckType(value)
     const liveModules = MODULES.filter(m => m.live)
     const fetched     = await Promise.all(
-        liveModules.map(async mod => ({ mod, index: await fetchIndex(c.env, mod.id) }))
+        liveModules.map(async mod => ({ mod, index: await fetchHomeSlice(c.env, mod.id) }))
     )
 
     const hits: object[] = []

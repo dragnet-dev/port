@@ -12,7 +12,9 @@
         return 'sql';
     }
 
-    function makeCodeBlock(label, text, url, isCSIOC) {
+    // rawUrl is the GitHub URL for the Raw link (opens the original source);
+    // url is the local proxy path used for fetch() and language detection.
+    function makeCodeBlock(label, text, url, rawUrl, isCSIOC) {
         var wrapper = document.createElement('div');
         wrapper.className = 'code-block';
 
@@ -27,7 +29,7 @@
         actions.className = 'code-actions';
 
         var rawLink = document.createElement('a');
-        rawLink.href = url;
+        rawLink.href = rawUrl;
         rawLink.target = '_blank';
         rawLink.rel = 'noopener';
         rawLink.className = 'raw-link';
@@ -107,12 +109,13 @@
 
             var results = await Promise.all(files.map(async function (f) {
                 var url = f.url;
+                var rawUrl = f.githubUrl || f.url;
                 try {
                     var res = await fetch(url);
                     var text = res.ok ? await res.text() : '// Rule not available';
-                    return { label: f.label, file: f.file, text: text, url: url };
+                    return { label: f.label, file: f.file, text: text, url: url, rawUrl: rawUrl };
                 } catch (_) {
-                    return { label: f.label, file: f.file, text: '// Rule not available', url: url };
+                    return { label: f.label, file: f.file, text: '// Rule not available', url: url, rawUrl: rawUrl };
                 }
             }));
 
@@ -121,7 +124,7 @@
             if (sentinelNote) content.appendChild(sentinelNote);
 
             results.forEach(function (b) {
-                var block = makeCodeBlock(b.label, b.text, b.url, isCSIOC);
+                var block = makeCodeBlock(b.label, b.text, b.url, b.rawUrl, isCSIOC);
                 content.appendChild(block);
                 var codeEl = block.querySelector('code');
                 if (codeEl && window.hljs) hljs.highlightElement(codeEl);

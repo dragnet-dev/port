@@ -278,15 +278,37 @@ export async function fetchIncident(env: Env, module: string, id: string): Promi
 // for the requested incident ID. Shards can be up to 50 MB so we deliberately
 // DON'T cache the raw shard (Cloudflare KV has a 25 MiB value limit); only
 // the matched incident is cached, keyed by id, in fetchIncident above.
+//
+// Uses shard-nums:{module} KV (written by the scheduled handler) to probe only
+// the sub-shards that actually exist rather than trying all 0..15.
 async function fetchIncidentFromShard(env: Env, module: string, id: string): Promise<Incident | null> {
     const shard = shardKey(id)
 
-    // First try the bare shard, then sub-shards 0..15 (cap is generous — engine
-    // currently produces at most 5 sub-shards for ossf).
-    const candidates = [
-        `${module}/incidents/all/${shard}.jsonl`,
-        ...Array.from({ length: 16 }, (_, i) => `${module}/incidents/all/${shard}-${i}.jsonl`),
-    ]
+    let candidates: string[]
+    const shardNumsRaw = await env.CACHE.get(`shard-nums:${module}`)
+    if (shardNumsRaw) {
+        try {
+            const map = JSON.parse(shardNumsRaw) as Record<string, { bare: boolean; nums: number[] }>
+            const info = map[shard]
+            if (!info) return null  // no shard for this ID prefix → definitely not in module
+            candidates = [
+                ...(info.bare ? [`${module}/incidents/all/${shard}.jsonl`] : []),
+                ...info.nums.map(n => `${module}/incidents/all/${shard}-${n}.jsonl`),
+            ]
+        } catch {
+            // Corrupt KV entry — fall back to sequential probe
+            candidates = [
+                `${module}/incidents/all/${shard}.jsonl`,
+                ...Array.from({ length: 16 }, (_, i) => `${module}/incidents/all/${shard}-${i}.jsonl`),
+            ]
+        }
+    } else {
+        // shard-nums not populated yet (before first scheduled run) — probe sequentially
+        candidates = [
+            `${module}/incidents/all/${shard}.jsonl`,
+            ...Array.from({ length: 16 }, (_, i) => `${module}/incidents/all/${shard}-${i}.jsonl`),
+        ]
+    }
 
     const haulIndex = await fetchHaulIndex(env)
     const intelBase = resolveBase(haulIndex, 'intel', env)
@@ -358,13 +380,54 @@ export async function fetchSearchIndex(env: Env, module: string): Promise<Search
     return records
 }
 
+// ruleURL returns the local proxy path for a rule file (served via /rules/).
+// Use this for fetch() calls from client-side JS — it avoids CORS issues and
+// lets the Worker cache satellite rule content in KV.
 export function ruleURL(
+    _index: HaulIndex, _env: Env,
+    module: string, platformId: string, layer: string, filename: string,
+): string {
+    return `/rules/${encodeURIComponent(module)}/${encodeURIComponent(platformId)}/${encodeURIComponent(layer)}/${encodeURIComponent(filename)}`
+}
+
+// ruleGithubURL returns the full GitHub raw URL for a rule file — used for
+// the "Raw ↗" link shown to users so they can open the original source.
+export function ruleGithubURL(
     index: HaulIndex, env: Env,
     module: string, platformId: string, layer: string, filename: string,
 ): string {
     const satKey = platformToSatelliteKey(platformId)
     const base   = resolveBase(index, satKey, env)
     return `${base}/${module}/rules/${platformId}/${layer}/${filename}`
+}
+
+// fetchRawFromSat fetches a file from a satellite haul repo (e.g. haul-rules-sigma)
+// with the same KV caching strategy as fetchRaw for the intel repo.
+export async function fetchRawFromSat(env: Env, satKey: string, path: string, ttl = 1800): Promise<string | null> {
+    const cacheKey = `raw-sat:${satKey}:${path}`
+
+    const cached = await env.CACHE.get(cacheKey)
+    if (cached === KV_NOT_FOUND) return null
+    if (cached) return cached
+
+    const index = await fetchHaulIndex(env)
+    const base = resolveBase(index, satKey, env)
+    const url = `${base}/${path}`
+    const res = await fetch(url, {
+        cf:      { cacheTtl: ttl, cacheEverything: true },
+        headers: { 'User-Agent': `${env.SITE_URL}/port` },
+    })
+
+    if (!res.ok) {
+        await env.CACHE.put(cacheKey, KV_NOT_FOUND, { expirationTtl: 300 })
+        return null
+    }
+
+    const text = await res.text()
+    if (text.length < KV_MAX_BYTES) {
+        await env.CACHE.put(cacheKey, text, { expirationTtl: ttl })
+    }
+    return text
 }
 
 export async function fetchFeed(env: Env, module: string, filename: string): Promise<string | null> {

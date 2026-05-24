@@ -1,5 +1,5 @@
 import { PLATFORMS, SOURCE_DISPLAY_NAME } from '../config'
-import { ruleURL } from '../github'
+import { ruleURL, ruleGithubURL } from '../github'
 import { escHtml } from './layout'
 import type { Env, HaulIndex, Incident, IncidentSummary, IOC, BehaviourDetection, ExposureData, AffectedImage, EOLImageInfo, SearchRecord } from '../types'
 
@@ -255,9 +255,10 @@ export function ruleAccordion(incident: Incident, module: string, index: HaulInd
             .map(f => {
                 const filename = f.file.split('/').pop() ?? f.file
                 return {
-                    label: `${f.layer.toUpperCase()} · ${filename}`,
-                    file:  filename,
-                    url:   ruleURL(index, env, module, platform.id, f.layer, filename),
+                    label:     `${f.layer.toUpperCase()} · ${filename}`,
+                    file:      filename,
+                    url:       ruleURL(index, env, module, platform.id, f.layer, filename),
+                    githubUrl: ruleGithubURL(index, env, module, platform.id, f.layer, filename),
                 }
             })
 

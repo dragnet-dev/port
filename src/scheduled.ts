@@ -30,6 +30,8 @@ import { fetchHaulIndex } from './github'
 import { MODULES, resolveBase } from './config'
 import type { Env, IncidentIndex, IncidentSummary, Manifest } from './types'
 
+const KV_MAX_BYTES = 24 * 1024 * 1024
+
 // trackable returns true for paths we include in the manifest snapshot.
 // The manifest lists 180k+ rule YAMLs (*/rules/**) that are served from
 // satellite repos — we never fetchRaw them. We also skip individual incident
@@ -99,7 +101,9 @@ async function syncManifest(env: Env): Promise<void> {
     // Always update the IOC count and home slices — even on first run when
     // toInvalidate is empty — so a fresh deploy is immediately usable.
     await updateIocCount(env, manifest)
+    await buildShardNums(env, manifest)
     await buildHomeSlices(env, haulIndex, toInvalidate)
+    await buildActorIndex(env)
 
     if (toInvalidate.length === 0) {
         console.log(`[manifest-sync] no changes (${manifest.files.length} files tracked)`)
@@ -216,6 +220,65 @@ async function buildHomeSlices(
         await env.CACHE.put(sliceKey, sliceJson, { expirationTtl: 7 * 24 * 3600 })
         console.log(`[home-slice] rebuilt ${mod.id}: ${topN.length} of ${full.incidents.length} incidents, stats=${JSON.stringify(full.stats)}`)
     }
+}
+
+// buildShardNums extracts the set of existing sub-shard numbers for each
+// (module, shardKey) pair from the manifest file list and stores them at
+// `shard-nums:{module}`. fetchIncidentFromShard reads these to avoid probing
+// sub-shards 0..15 when only 0..2 actually exist.
+async function buildShardNums(env: Env, manifest: Manifest): Promise<void> {
+    type ShardInfo = { bare: boolean; nums: number[] }
+    const shardMap: Record<string, Record<string, ShardInfo>> = {}
+
+    for (const f of manifest.files) {
+        const m = f.path.match(/^([^/]+)\/incidents\/all\/([a-z0-9]+)(-(\d+))?\.jsonl$/)
+        if (!m) continue
+        const [, mod, shardKey, , numStr] = m
+        if (!shardMap[mod]) shardMap[mod] = {}
+        if (!shardMap[mod][shardKey]) shardMap[mod][shardKey] = { bare: false, nums: [] }
+        if (numStr === undefined) {
+            shardMap[mod][shardKey].bare = true
+        } else {
+            shardMap[mod][shardKey].nums.push(Number(numStr))
+        }
+    }
+
+    for (const [mod, map] of Object.entries(shardMap)) {
+        for (const v of Object.values(map)) v.nums.sort((a, b) => a - b)
+        await env.CACHE.put(`shard-nums:${mod}`, JSON.stringify(map), { expirationTtl: 7 * 24 * 3600 })
+    }
+    console.log(`[shard-nums] updated ${Object.keys(shardMap).length} module(s)`)
+}
+
+// buildActorIndex reads the already-built _home:{module} slices and writes
+// `actor-inc:{actorNameLower}` KV entries mapping each actor name to the list
+// of IncidentSummaries (with module) that reference them. The actors route
+// checks these KV entries first before falling back to fetching full indexes.
+async function buildActorIndex(env: Env): Promise<void> {
+    const actorMap = new Map<string, Array<IncidentSummary & { module: string }>>()
+
+    for (const mod of MODULES) {
+        if (!mod.live) continue
+        const sliceStr = await env.CACHE.get(`_home:${mod.id}`)
+        if (!sliceStr) continue
+        let slice: IncidentIndex
+        try { slice = JSON.parse(sliceStr) as IncidentIndex } catch { continue }
+
+        for (const inc of slice.incidents) {
+            if (!inc.actor) continue
+            const key = inc.actor.toLowerCase()
+            if (!actorMap.has(key)) actorMap.set(key, [])
+            actorMap.get(key)!.push({ ...inc, module: mod.id })
+        }
+    }
+
+    for (const [name, incidents] of actorMap) {
+        const val = JSON.stringify(incidents)
+        if (val.length < KV_MAX_BYTES) {
+            await env.CACHE.put(`actor-inc:${name}`, val, { expirationTtl: 7 * 24 * 3600 })
+        }
+    }
+    console.log(`[actor-index] indexed ${actorMap.size} actor name(s)`)
 }
 
 // purgeIncByPrefix lists and deletes every KV key under a given prefix. Used

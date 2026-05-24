@@ -13,6 +13,7 @@ import { aboutRoute } from './routes/about'
 import { checkRoute } from './routes/check'
 import { checkImageRoute } from './routes/checkImage'
 import { searchRoute } from './routes/search'
+import { rulesRoute } from './routes/rules'
 import { fetchHomeSlice } from './github'
 import { MODULES } from './config'
 import { baseLayout, errorPage } from './ui/layout'
@@ -45,8 +46,9 @@ app.get('/_health', (c) => {
     return c.json({ ok: true })
 })
 
-app.post('/check',                       checkRoute)
-app.post('/check-image',                 checkImageRoute)
+app.post('/check',                                            checkRoute)
+app.post('/check-image',                                      checkImageRoute)
+app.get('/rules/:module/:platform/:layer/:filename',          rulesRoute)
 app.get('/',                             homeRoute)
 app.get('/search',                       searchRoute)
 app.get('/about',                        aboutRoute)

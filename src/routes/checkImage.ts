@@ -46,7 +46,12 @@ export async function checkImageRoute(c: Context<{ Bindings: Env }>) {
         return c.json({ value, compromised: false, hits: [] })
     }
 
-    const entries = JSON.parse(raw) as ContainerImageEntry[]
+    let entries: ContainerImageEntry[]
+    try {
+        entries = JSON.parse(raw) as ContainerImageEntry[]
+    } catch {
+        return c.json({ value, compromised: false, hits: [] })
+    }
     const valueLower = value.toLowerCase()
     // Accept either "repository:tag" or just "repository". The latter matches
     // any tag of that repo flagged in the feed.

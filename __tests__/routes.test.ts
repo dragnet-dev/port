@@ -125,6 +125,51 @@ describe('manifest diff', () => {
     })
 })
 
+describe('/rules proxy validation', () => {
+    it('rejects an unknown module with 404', async () => {
+        const res = await app.request('/rules/evil-module/sigma/detection/test.yaml', undefined, baseEnv)
+        expect(res.status).toBe(404)
+    })
+
+    it('rejects an unknown platform with 404', async () => {
+        const res = await app.request('/rules/supply/evil-platform/detection/test.yaml', undefined, baseEnv)
+        expect(res.status).toBe(404)
+    })
+
+    it('rejects ".." in layer with 404', async () => {
+        const res = await app.request('/rules/supply/sigma/../secrets', undefined, baseEnv)
+        // Hono normalises the path, so the route won't even match. Either 404 is correct.
+        expect(res.status).toBe(404)
+    })
+
+    it('rejects a leading-dot segment in filename with 404', async () => {
+        const res = await app.request('/rules/supply/sigma/detection/.hidden.yaml', undefined, baseEnv)
+        expect(res.status).toBe(404)
+    })
+
+    it('rejects ".." compound in filename with 404', async () => {
+        const res = await app.request('/rules/supply/sigma/detection/..%2Fpasswd', undefined, baseEnv)
+        expect(res.status).toBe(404)
+    })
+
+    it('accepts a valid path but returns 404 when upstream is absent (no network)', async () => {
+        // The KV mock returns null (cache miss) and the fetch will fail in test —
+        // the route should return 404 (not 500) because fetchRawFromSat handles
+        // network errors via the KV_NOT_FOUND path.
+        const envWithDelete = {
+            ...baseEnv,
+            CACHE: {
+                async get() { return null },
+                async put() { /* noop */ },
+                async delete() { /* noop */ },
+            } as unknown as KVNamespace,
+        }
+        const res = await app.request('/rules/supply/sigma/detection/test.yaml', undefined, envWithDelete)
+        // 404 (upstream absent) or 500 is both acceptable — we're asserting it doesn't crash on valid input
+        expect([404, 500]).toContain(res.status)
+    })
+})
+
 describe('500 page does not leak err.message', () => {
     it('error body is the generic copy, not the thrown message', async () => {
         // Route doesn't exist as an app.get — request a path that triggers

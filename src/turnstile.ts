@@ -7,6 +7,7 @@ export async function verifyTurnstile(token: string, secret: string): Promise<bo
             body: JSON.stringify({ secret, response: token }),
         }
     )
+    if (!res.ok) return false
     const data = await res.json() as { success: boolean }
-    return data.success
+    return data.success === true
 }
