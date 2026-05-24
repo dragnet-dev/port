@@ -115,6 +115,16 @@ export async function incidentRoute(c: Context<{ Bindings: Env }>) {
         return c.html(baseLayout('Not found', html, c.env), 404)
     }
 
+    // Prefer campaign name, then first package name, then raw ID.
+    const pkgNames = (incident.packages ?? []).map(p => p.name)
+    const pageTitle = incident.campaign
+        ? incident.campaign
+        : pkgNames.length === 1
+            ? pkgNames[0]
+            : pkgNames.length > 1
+                ? `${pkgNames[0]} +${pkgNames.length - 1}`
+                : incidentId
+
     const windowStr = incident.compromise_start && incident.compromise_end
         ? ` · Compromise window: ${escHtml(incident.compromise_start)} – ${escHtml(incident.compromise_end)}`
         : ''
@@ -152,14 +162,16 @@ export async function incidentRoute(c: Context<{ Bindings: Env }>) {
     const accordion  = ruleAccordion(incident, moduleId, haulIndex, c.env)
 
     const intelBase = resolveBase(haulIndex, 'intel', c.env)
-    const refs = (incident.references ?? []).map(url =>
-        `<li><a href="${escHtml(url)}" target="_blank" rel="noopener">${escHtml(new URL(url).hostname)} ↗</a></li>`
-    ).join('')
+    const refs = (incident.references ?? []).map(url => {
+        let label = url
+        try { label = new URL(url).hostname } catch { /* keep raw */ }
+        return `<li><a href="${escHtml(url)}" target="_blank" rel="noopener">${escHtml(label)} ↗</a></li>`
+    }).join('')
 
     const html = `<div class="container page">
     <div class="incident-header">
         <div class="incident-header-top">
-            <span class="incident-title">${escHtml(incidentId)}</span>
+            <span class="incident-title">${escHtml(pageTitle)}</span>
             ${severityBadge(incident.severity)}
         </div>
         <div class="incident-meta-row">
@@ -213,5 +225,5 @@ export async function incidentRoute(c: Context<{ Bindings: Env }>) {
     </div>
 </div>`
 
-    return c.html(baseLayout(incidentId, html, c.env, `/${moduleId}`))
+    return c.html(baseLayout(pageTitle, html, c.env, `/${moduleId}`))
 }
