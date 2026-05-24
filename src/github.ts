@@ -252,14 +252,20 @@ export async function fetchIncident(env: Env, module: string, id: string): Promi
     }
 
     // 1. Curated incidents have a per-ecosystem YAML on disk + a row in index.json.
-    const index = await fetchIndex(env, module)
-    const meta = index?.incidents.find(i => i.id === id)
-    if (meta?.ecosystem) {
-        const raw = await fetchRaw(env, `${module}/incidents/${meta.ecosystem}/${id}.yaml`, 3600)
-        if (raw) {
-            const inc = normalizeIncident(yaml.load(raw))
-            await env.CACHE.put(perIncidentKey, JSON.stringify(inc), { expirationTtl: 86400 })
-            return inc
+    //    Supply is entirely bulk-loaded (JSONL) — its index is 56 MB and exceeds
+    //    KV's 25 MiB limit, so fetchIndex would hit GitHub on every miss. Skip it
+    //    for supply and go straight to the shard path below.
+    //    For all other modules the index fits in KV and caches after the first fetch.
+    if (module !== 'supply') {
+        const index = await fetchIndex(env, module)
+        const meta = index?.incidents.find(i => i.id === id)
+        if (meta?.ecosystem) {
+            const raw = await fetchRaw(env, `${module}/incidents/${meta.ecosystem}/${id}.yaml`, 3600)
+            if (raw) {
+                const inc = normalizeIncident(yaml.load(raw))
+                await env.CACHE.put(perIncidentKey, JSON.stringify(inc), { expirationTtl: 86400 })
+                return inc
+            }
         }
     }
 
