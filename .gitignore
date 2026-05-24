@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+public/_worker.js
+public/assets/styles.css
+public/assets/highlight.min.js
+public/sitemap.xml

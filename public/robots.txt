@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /check
+Disallow: /check-image
+
+Sitemap: https://dragnet.dev/sitemap.xml

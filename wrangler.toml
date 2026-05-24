@@ -1,0 +1,22 @@
+name = "port"
+pages_build_output_dir = "public"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron triggers — fire src/scheduled.ts every 10 min to diff haul's
+# feeds/manifest.json against the last-seen snapshot and purge stale KV
+# entries. Without this, raw: entries hang around for their TTL (30 min)
+# even when haul has shipped fresh data.
+[triggers]
+crons = ["*/10 * * * *"]
+
+# Base URLs are no longer hardcoded env vars. On each request (and on each
+# cron tick) port fetches dragnet-dev/haul/main/index.json — the orchestrator
+# index — and derives intel + per-backend satellite base URLs from it.
+# Optional: set HAUL_CDN_BASE to any non-empty value in the Pages dashboard to
+# activate CDN mode; the index will then carry a cdn map that takes priority.
+
+# KV binding (CACHE) lives in the Cloudflare Pages dashboard
+# (Settings → Functions → KV namespace bindings) for prod. For local dev,
+# the `--kv CACHE` flag in `package.json:dev` creates an ad-hoc in-memory
+# KV namespace.

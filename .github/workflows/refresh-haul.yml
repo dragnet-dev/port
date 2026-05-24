@@ -1,0 +1,51 @@
+name: Refresh haul SHA
+
+# Weekly schema-drift detector. Resolves haul's HEAD SHA and runs port's CI
+# (typecheck + test + build) against that pin. A green run means port's
+# schema parity tests still pass against the latest haul commit; a red run
+# means dragnet has shipped a change that needs port-side attention before
+# the operator updates HAUL_BRANCH in the Cloudflare Pages env.
+#
+# This workflow does NOT auto-update any committed file or open a PR — the
+# pin lives in the Cloudflare Pages environment, not in source. Operators
+# read the workflow run summary and update the env manually.
+
+on:
+  schedule:
+    - cron: '0 12 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      - name: Resolve latest haul SHA
+        id: sha
+        run: |
+          SHA=$(git ls-remote https://github.com/dragnet-dev/haul.git HEAD | cut -f1)
+          if [ -z "$SHA" ]; then
+            echo "Failed to resolve haul HEAD SHA" >&2
+            exit 1
+          fi
+          printf 'Latest haul HEAD: `%s`\n' "$SHA" >> "$GITHUB_STEP_SUMMARY"
+          printf 'sha=%s\n' "$SHA" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+
+      - name: Typecheck, test, build (haul pinned to latest)
+        env:
+          HAUL_REPO:   dragnet-dev/haul
+          HAUL_BRANCH: ${{ steps.sha.outputs.sha }}
+        run: |
+          npm run typecheck
+          npm test
+          npm run build

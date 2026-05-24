@@ -1,0 +1,29 @@
+{
+  "generated": "2026-05-15T15:28:37Z",
+  "stats": {
+    "container": {
+      "incidents": 0,
+      "iocs": 0
+    },
+    "cve": {
+      "incidents": 0,
+      "iocs": 0
+    },
+    "malware": {
+      "incidents": 0,
+      "iocs": 0
+    },
+    "ransomware": {
+      "incidents": 0,
+      "iocs": 0
+    },
+    "supply": {
+      "incidents": 0,
+      "iocs": 0
+    },
+    "total": {
+      "incidents": 0,
+      "iocs": 0
+    }
+  }
+}

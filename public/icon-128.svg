@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 108" width="128" height="108" fill="none">
+  <!-- Tugboat placeholder — replace with final artwork -->
+  <rect x="8" y="54" width="112" height="38" rx="8" fill="#7c3aed"/>
+  <rect x="28" y="26" width="48" height="32" rx="4" fill="#7c3aed" opacity="0.85"/>
+  <rect x="48" y="8" width="18" height="22" fill="#7c3aed" opacity="0.65"/>
+  <rect x="4" y="92" width="120" height="10" rx="4" fill="#7c3aed" opacity="0.4"/>
+  <circle cx="32" cy="82" r="6" fill="#ffffff" opacity="0.3"/>
+  <circle cx="96" cy="82" r="6" fill="#ffffff" opacity="0.3"/>
+</svg>

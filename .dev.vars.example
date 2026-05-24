@@ -1,0 +1,15 @@
+# Copy to .dev.vars and fill in your values for local development.
+# Production values go in the Cloudflare Pages dashboard, not here.
+
+HAUL_REPO=your-org/your-rules-repo
+HAUL_BRANCH=main
+SITE_URL=https://your-domain.com
+TURNSTILE_SITE_KEY=your-turnstile-site-key
+
+# TURNSTILE_SECRET is REQUIRED. POST /check and /check-image return 503
+# "Service not configured" if it's unset, so production deploys must bind it
+# in the Cloudflare Pages dashboard (Settings > Functions > Environment > Secrets).
+# For local development use the Cloudflare Turnstile always-pass test keys.
+# See: https://developers.cloudflare.com/turnstile/troubleshooting/testing/
+# Test site key:   starts with 1x00000000000000000000 (see Cloudflare docs)
+# Test secret key: starts with 1x0000000000000000000000000000 (see Cloudflare docs)
