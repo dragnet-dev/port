@@ -173,7 +173,7 @@ function groupedCveRefs(urls: string[], cveId?: string): string {
         // Don't link out to .onion or other darknet / suspicious TLDs — render as plain text.
         if (host.endsWith('.onion') || host.endsWith('.i2p')) {
             const defanged = url.replace(/\./g, '[.]').replace(/^https?:\/\//i, s => s.replace('http', 'hxxp'))
-            items.push(`<li><code style="font-size:12px;color:var(--text-muted)">${escHtml(defanged)}</code></li>`)
+            items.push(`<li><code style="font-size:12px;color:var(--text-muted);word-break:break-all">${escHtml(defanged)}</code></li>`)
         } else {
             items.push(`<li><a href="${escHtml(url)}" target="_blank" rel="noopener">${escHtml(host)} ↗</a></li>`)
         }
