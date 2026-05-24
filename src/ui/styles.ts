@@ -25,6 +25,7 @@ export const CSS = `
     --ransomware:    #d29922;
     --cve:           #f85149;
     --container:     #58a6ff;
+    --os-packages:   #3fb950;
 }
 
 @media (prefers-color-scheme: light) {
@@ -76,7 +77,7 @@ code, pre, .ioc-value, .incident-id {
 nav {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 16px;
     padding: 12px 24px;
     border-bottom: 1px solid var(--border);
     background: var(--bg-surface);
@@ -130,11 +131,12 @@ a.mod {
 a.mod:hover { border-color: var(--border); text-decoration: none; color: var(--text); }
 a.mod.active { border-color: var(--accent-border); background: var(--accent-light); }
 
-a.mod.supply  { box-shadow: inset 2px 0 0 var(--supply); padding-left: 12px; }
-a.mod.malware { box-shadow: inset 2px 0 0 var(--malware); padding-left: 12px; }
-a.mod.ransomware { box-shadow: inset 2px 0 0 var(--ransomware); padding-left: 12px; }
-a.mod.cve { box-shadow: inset 2px 0 0 var(--cve); padding-left: 12px; }
-a.mod.container { box-shadow: inset 2px 0 0 var(--container); padding-left: 12px; }
+a.mod.supply      { box-shadow: inset 2px 0 0 var(--supply);      padding-left: 12px; }
+a.mod.malware     { box-shadow: inset 2px 0 0 var(--malware);     padding-left: 12px; }
+a.mod.ransomware  { box-shadow: inset 2px 0 0 var(--ransomware);  padding-left: 12px; }
+a.mod.cve         { box-shadow: inset 2px 0 0 var(--cve);         padding-left: 12px; }
+a.mod.container   { box-shadow: inset 2px 0 0 var(--container);   padding-left: 12px; }
+a.mod.os-packages { box-shadow: inset 2px 0 0 var(--os-packages); padding-left: 12px; }
 
 .mod.coming-soon {
     color: var(--text-subtle);
