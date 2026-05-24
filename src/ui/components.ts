@@ -118,8 +118,9 @@ export function searchResultCard(rec: SearchRecord): string {
 
 export function confidenceBar(confidence: number | undefined, sources: string[] = []): string {
     // Bulk-imported records (urlhaus, malware_bazaar, CISA, etc.) don't carry
-    // a confidence score. Render nothing rather than NaN%.
-    if (confidence == null || isNaN(confidence)) {
+    // a confidence score. Zero is also treated as absent — showing "0.00" is
+    // misleading when the engine simply never assigned a score.
+    if (!confidence || isNaN(confidence)) {
         if (!sources.length) return ''
         const chips = sources.map(s => `<span class="source-chip">${escHtml(SOURCE_DISPLAY_NAME[s] ?? s.replace(/_/g, ' '))}</span>`).join('')
         return `<div class="confidence"><div class="sources-chips">${chips}</div></div>`

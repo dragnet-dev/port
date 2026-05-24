@@ -251,28 +251,9 @@ export async function fetchIncident(env: Env, module: string, id: string): Promi
         try { return JSON.parse(cached) as Incident } catch { /* fall through */ }
     }
 
-    // 1. Curated incidents have a per-ecosystem YAML on disk + a row in index.json.
-    //    Supply is entirely bulk-loaded (JSONL) — its index is 56 MB and exceeds
-    //    KV's 25 MiB limit, so fetchIndex would hit GitHub on every miss. Skip it
-    //    for supply and go straight to the shard path below.
-    //    For all other modules the index fits in KV and caches after the first fetch.
-    if (module !== 'supply') {
-        const index = await fetchIndex(env, module)
-        const meta = index?.incidents.find(i => i.id === id)
-        if (meta?.ecosystem) {
-            const raw = await fetchRaw(env, `${module}/incidents/${meta.ecosystem}/${id}.yaml`, 3600)
-            if (raw) {
-                const inc = normalizeIncident(yaml.load(raw))
-                await env.CACHE.put(perIncidentKey, JSON.stringify(inc), { expirationTtl: 86400 })
-                return inc
-            }
-        }
-    }
-
-    // 2. Bulk-loaded incidents (OSV/OSSF/GHSA etc.) live only in the JSONL shards
-    //    written by sync. Try the shard family for this ID prefix — both the bare
-    //    {shard}.jsonl and {shard}-N.jsonl sub-shards (engine sub-shards any
-    //    bucket >50k records).
+    // All live modules use bulk JSONL (no per-incident YAML). Go straight to the
+    // shard. shard-nums:{module} KV lets fetchIncidentFromShard return null
+    // immediately for unknown ID prefixes without probing any network path.
     const inc = await fetchIncidentFromShard(env, module, id)
     if (inc) {
         await env.CACHE.put(perIncidentKey, JSON.stringify(inc), { expirationTtl: 86400 })
