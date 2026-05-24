@@ -31,7 +31,7 @@ async function cveIncidentHandler(c: Context<{ Bindings: Env }>, moduleId: strin
     }
 
     const cveExt = incident.cve_ext
-    const title  = cveExt?.cve_id ?? incidentId
+    const title  = cveExt?.cve_id ?? incident.malware_ext?.malware_family ?? incident.actor ?? incidentId
 
     const cvssVal  = cveExt?.cvss_score
     const cvssChip = cvssVal != null
@@ -64,6 +64,8 @@ async function cveIncidentHandler(c: Context<{ Bindings: Env }>, moduleId: strin
         </div>
         <div class="incident-meta-row">
             ${[
+                incident.campaign ? `<span>${escHtml(incident.campaign)}</span>` : '',
+                incident.actor && incident.actor !== incident.campaign ? `<a href="/actors/${encodeURIComponent(incident.actor)}">${escHtml(incident.actor)}</a>` : '',
                 incident.attack_type ? `<span>${escHtml(incident.attack_type.replace(/_/g, ' '))}</span>` : '',
                 `<span>Published ${relativeTime(incident.published)}</span>`,
             ].filter(Boolean).join('<span class="meta-sep">·</span>')}
