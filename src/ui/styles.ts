@@ -405,6 +405,28 @@ a.mod.os-packages { box-shadow: inset 2px 0 0 var(--os-packages); padding-left: 
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
 @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
 
+/* Tablet nav (721px–1270px): logo + search + links on row 1, pills scroll on row 2.
+ * 6 live module pills exceed the horizontal space below ~1271px. */
+@media (min-width: 721px) and (max-width: 1270px) {
+    nav {
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        padding: 10px 16px;
+    }
+    .module-links {
+        order: 2;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        width: 100%;
+        min-width: 0;
+    }
+    .nav-search {
+        margin-left: 0;
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
 /* Mobile nav: stack the search bar onto its own row, allow module-links to
  * scroll horizontally, hide About (still in footer). */
 @media (max-width: 720px) {
