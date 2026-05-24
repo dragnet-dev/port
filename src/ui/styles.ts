@@ -412,12 +412,14 @@ a.mod.os-packages { box-shadow: inset 2px 0 0 var(--os-packages); padding-left: 
         flex-wrap: wrap;
         gap: 8px 16px;
         padding: 10px 14px;
+        overflow: hidden;
     }
     .module-links {
         order: 2;
         overflow-x: auto;
         scrollbar-width: thin;
-        max-width: 100%;
+        width: 100%;
+        min-width: 0;
     }
     .nav-search {
         order: 3;
@@ -444,6 +446,35 @@ a.mod.os-packages { box-shadow: inset 2px 0 0 var(--os-packages); padding-left: 
     padding-bottom: 8px;
     border-bottom: 1px solid var(--border-subtle);
 }
+
+/* Actors index */
+.actor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+@media (min-width: 640px) {
+    .actor-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+}
+.actor-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 10px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: border-color 0.1s, background 0.1s;
+    min-width: 0;
+    overflow: hidden;
+}
+@media (min-width: 640px) {
+    .actor-entry { padding: 10px 14px; }
+}
+.actor-entry:hover { border-color: var(--border); background: var(--bg-elevated); text-decoration: none; }
+.actor-entry-name { font-size: 13px; font-weight: 600; color: var(--text); font-family: 'JetBrains Mono', monospace; }
+.actor-entry-aliases { font-size: 11px; color: var(--text-subtle); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Check widget */
 .check-widget {

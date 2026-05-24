@@ -79,44 +79,7 @@ export async function actorsIndexRoute(c: Context<{ Bindings: Env }>) {
     </div>
     ${filterBar}
     ${body}
-</div>
-
-<style>
-.actor-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 8px;
-}
-.actor-entry {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 10px 14px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    text-decoration: none;
-    transition: border-color 0.1s, background 0.1s;
-}
-.actor-entry:hover {
-    border-color: var(--border);
-    background: var(--bg-elevated);
-    text-decoration: none;
-}
-.actor-entry-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-}
-.actor-entry-aliases {
-    font-size: 11px;
-    color: var(--text-subtle);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-</style>`
+</div>`
 
     return c.html(baseLayout('Actors', html, c.env, '/actors'))
 }
