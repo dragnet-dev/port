@@ -257,13 +257,14 @@ async function buildShardNums(env: Env, manifest: Manifest): Promise<void> {
 async function buildActorIndex(env: Env): Promise<void> {
     const actorMap = new Map<string, Array<IncidentSummary & { module: string }>>()
 
-    for (const mod of MODULES) {
-        if (!mod.live) continue
-        const sliceStr = await env.CACHE.get(`_home:${mod.id}`)
-        if (!sliceStr) continue
+    const liveMods = MODULES.filter(m => m.live)
+    const slices = await Promise.all(
+        liveMods.map(mod => env.CACHE.get(`_home:${mod.id}`).then(s => ({ mod, s })))
+    )
+    for (const { mod, s } of slices) {
+        if (!s) continue
         let slice: IncidentIndex
-        try { slice = JSON.parse(sliceStr) as IncidentIndex } catch { continue }
-
+        try { slice = JSON.parse(s) as IncidentIndex } catch { continue }
         for (const inc of slice.incidents) {
             if (!inc.actor) continue
             const key = inc.actor.toLowerCase()

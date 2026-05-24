@@ -1,5 +1,5 @@
 import { Context } from 'hono'
-import { fetchIncident, fetchIndex, fetchHaulIndex } from '../github'
+import { fetchIncident, fetchHaulIndex } from '../github'
 import { baseLayout, errorPage, escHtml } from '../ui/layout'
 import { severityBadge, ruleAccordion, relativeTime } from '../ui/components'
 import { resolveBase } from '../config'
@@ -14,24 +14,10 @@ export async function containerIncidentRoute(c: Context<{ Bindings: Env }>) {
     const id = c.req.param('id') ?? ''
     if (!isValidSlug(id)) return c.notFound()
 
-    // Confirm the incident is listed in the module index before paying for the
-    // shard fetch. Mirrors how the supply route narrows its lookups.
-    const [haulIndex, index] = await Promise.all([
+    const [haulIndex, incident] = await Promise.all([
         fetchHaulIndex(c.env),
-        fetchIndex(c.env, 'container'),
+        fetchIncident(c.env, 'container', id),
     ])
-    const summary = index?.incidents.find(i => i.id === id)
-    if (!summary) {
-        const html = errorPage({
-            code:  404,
-            title: 'Incident not found',
-            body:  `<p>No container incident with ID <code>${escHtml(id)}</code>.</p>`,
-            cta:   { href: '/container/incidents', label: 'Browse all incidents' },
-        })
-        return c.html(baseLayout('Not found', html, c.env), 404)
-    }
-
-    const incident = await fetchIncident(c.env, 'container', id)
     if (!incident) {
         const html = errorPage({
             code:  404,
