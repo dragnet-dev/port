@@ -1,6 +1,6 @@
 import type { Env, HaulIndex } from './types'
 
-// Fixed entry point — always fetch this first to resolve all other base URLs.
+// Fixed entry point  -  always fetch this first to resolve all other base URLs.
 export const HAUL_INDEX_URL = "https://raw.githubusercontent.com/dragnet-dev/haul/main/index.json"
 
 // Maps our internal platform ID to the satellite repo key used in the haul index.

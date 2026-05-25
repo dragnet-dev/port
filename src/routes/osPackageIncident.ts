@@ -52,7 +52,7 @@ export async function osPackageIncidentRoute(c: Context<{ Bindings: Env }>) {
     const accordion  = ruleAccordion(incident, moduleId, haulIndex, c.env)
     const intelBase  = resolveBase(haulIndex, 'intel', c.env)
 
-    // Affected packages section — prefer os_package_ext entries (richer distro
+    // Affected packages section  -  prefer os_package_ext entries (richer distro
     // data) but fall back to the generic packages[] field if the extension is absent.
     const affectedSection = buildAffectedSection(osExt?.os_packages, incident.packages)
 
@@ -114,7 +114,7 @@ function buildAffectedSection(
     osEntries: OSPackageEntry[] | undefined,
     packages:  AffectedPackage[],
 ): string {
-    // os_package_ext path — richer, has distro info
+    // os_package_ext path  -  richer, has distro info
     if (osEntries && osEntries.length > 0) {
         // Group by distro family (strip version suffix for the heading)
         const byDistro = new Map<string, OSPackageEntry[]>()
@@ -183,12 +183,12 @@ function buildAffectedSection(
     const rows = packages.map(pkg => {
         const safeCell = pkg.safe_version
             ? `<code style="font-size:12px;color:var(--low)">${escHtml(pkg.safe_version)}</code>`
-            : `<span style="font-size:12px;color:var(--text-muted)">—</span>`
+            : `<span style="font-size:12px;color:var(--text-muted)"> - </span>`
         const versChips = (pkg.versions ?? []).map(v => `<span style="${chipStyle}">${escHtml(v)}</span>`).join(' ')
         return `<tr>
             <td style="padding:8px 12px;font-size:13px;color:var(--text-muted)">${escHtml(pkg.ecosystem)}</td>
             <td style="padding:8px 12px;font-family:monospace;font-size:13px">${escHtml(pkg.name)}</td>
-            <td style="padding:8px 12px;font-size:13px">${versChips || '—'}</td>
+            <td style="padding:8px 12px;font-size:13px">${versChips || ' - '}</td>
             <td style="padding:8px 12px">${safeCell}</td>
         </tr>`
     }).join('')
@@ -240,7 +240,7 @@ function buildRemediationSection(
     const REMEDIATION: Record<string, { cmd: string; note: string }> = {
         debian: {
             cmd:  'apt-get update && apt-get upgrade -y <package>',
-            note: 'Apply DSA patches via <code>apt-get</code> — ensure your sources list includes the security repository.',
+            note: 'Apply DSA patches via <code>apt-get</code>  -  ensure your sources list includes the security repository.',
         },
         ubuntu: {
             cmd:  'apt-get update && apt-get upgrade -y <package>',
@@ -248,7 +248,7 @@ function buildRemediationSection(
         },
         alpine: {
             cmd:  'apk update && apk upgrade <package>',
-            note: 'Alpine packages update on their regular edge/stable cycle — pin to the fixed version in your Dockerfile <code>FROM</code>.',
+            note: 'Alpine packages update on their regular edge/stable cycle  -  pin to the fixed version in your Dockerfile <code>FROM</code>.',
         },
         rhel: {
             cmd:  'dnf update --security -y <package>',
@@ -256,11 +256,11 @@ function buildRemediationSection(
         },
         centos: {
             cmd:  'dnf update --security -y <package>',
-            note: 'CentOS Stream receives RHSA-equivalent patches — apply via <code>dnf update --security</code>.',
+            note: 'CentOS Stream receives RHSA-equivalent patches  -  apply via <code>dnf update --security</code>.',
         },
         fedora: {
             cmd:  'dnf update -y <package>',
-            note: 'Fedora follows a rapid release cycle — ensure your system is on a supported release and update regularly.',
+            note: 'Fedora follows a rapid release cycle  -  ensure your system is on a supported release and update regularly.',
         },
     }
 

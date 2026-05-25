@@ -204,7 +204,7 @@ function parseCvssImpact(vector: string): string[] {
 function groupedReferences(urls: string[]): string {
     if (urls.length === 0) return ''
 
-    // Skip-list patterns — too noisy, near-duplicate, or mirror/errata only.
+    // Skip-list patterns  -  too noisy, near-duplicate, or mirror/errata only.
     const skipPatterns = [
         'bugzilla.redhat.com',
         'errata.almalinux.org',
@@ -281,7 +281,7 @@ function groupedReferences(urls: string[]): string {
                 const seg = url.split('/').pop() ?? url
                 return `<a href="${escHtml(url)}" target="_blank" rel="noopener">${escHtml(seg)} ↗</a>`
             }).join(', ')
-            items.push(`<li>${shown} <span style="color:var(--text-muted);font-size:12px">and <span class="rhsa-toggle" style="cursor:pointer;text-decoration:underline">${rest.length} more</span></span><span class="rhsa-rest" style="display:none"> — ${restLinks}</span></li>`)
+            items.push(`<li>${shown} <span style="color:var(--text-muted);font-size:12px">and <span class="rhsa-toggle" style="cursor:pointer;text-decoration:underline">${rest.length} more</span></span><span class="rhsa-rest" style="display:none">  -  ${restLinks}</span></li>`)
         }
     }
 
@@ -333,7 +333,7 @@ function cvssColour(score: number): string {
         : 'var(--low)'
 }
 
-// shardKey mirrors src/github.ts:shardKey — duplicated here so the "Raw data"
+// shardKey mirrors src/github.ts:shardKey  -  duplicated here so the "Raw data"
 // link points at the right JSONL shard URL on haul.
 function shardKey(id: string): string {
     const s = id.toLowerCase()

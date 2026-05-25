@@ -21,10 +21,10 @@ export async function searchRoute(c: Context<{ Bindings: Env }>) {
     <div style="font-size:13px;color:var(--text-muted);line-height:1.8">
         Examples:
         <ul style="margin-top:8px">
-            <li><a href="/search?q=event-stream" style="color:var(--accent)">event-stream</a> — a package name</li>
-            <li><a href="/search?q=CVE-2024" style="color:var(--accent)">CVE-2024</a> — a CVE prefix</li>
-            <li><a href="/search?q=apt29" style="color:var(--accent)">apt29</a> — an actor alias</li>
-            <li><a href="/search?q=lazarus" style="color:var(--accent)">lazarus</a> — a campaign name</li>
+            <li><a href="/search?q=event-stream" style="color:var(--accent)">event-stream</a> <span style="color:var(--text-subtle)">(package name)</span></li>
+            <li><a href="/search?q=CVE-2024" style="color:var(--accent)">CVE-2024</a> <span style="color:var(--text-subtle)">(CVE prefix)</span></li>
+            <li><a href="/search?q=apt29" style="color:var(--accent)">apt29</a> <span style="color:var(--text-subtle)">(actor alias)</span></li>
+            <li><a href="/search?q=lazarus" style="color:var(--accent)">lazarus</a> <span style="color:var(--text-subtle)">(campaign name)</span></li>
         </ul>
     </div>
 </div>`

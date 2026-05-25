@@ -10,7 +10,7 @@ const PAGE_SIZE = 20
 // searchRecordToSummary maps a SearchRecord (slim, lives in feeds/search-*)
 // into the IncidentSummary shape incidentCard expects. Used by the listing
 // fallback when {module}/incidents/index.json hasn't been populated by
-// dragnet yet — the search index is a superset, so we can degrade to it
+// dragnet yet  -  the search index is a superset, so we can degrade to it
 // without changing the renderer.
 function searchRecordToSummary(rec: SearchRecord): IncidentSummary {
     return {
@@ -46,7 +46,7 @@ export async function incidentsRoute(c: Context<{ Bindings: Env }>) {
     <div class="coming-soon-page">
         <div class="coming-soon-icon">${mod.icon}</div>
         <h1>${escHtml(mod.name)} Incidents</h1>
-        <p style="font-size:13px;color:var(--text-subtle)">Data is syncing — check back shortly.</p>
+        <p style="font-size:13px;color:var(--text-subtle)">Data is syncing  -  check back shortly.</p>
     </div>
 </div>`
         return c.html(baseLayout(`${mod.name} Incidents`, html, c.env, `/${moduleId}`))
@@ -130,7 +130,7 @@ export async function incidentsRoute(c: Context<{ Bindings: Env }>) {
 </div>` : ''
 
     const fallbackBanner = usedSearchFallback
-        ? `<div style="background:rgba(124,58,237,0.08);border:1px solid var(--accent-border);border-radius:6px;padding:10px 14px;font-size:13px;color:var(--text-muted);margin-bottom:16px">Showing approximate matches from the full search index — curated metadata is still generating.</div>`
+        ? `<div style="background:rgba(124,58,237,0.08);border:1px solid var(--accent-border);border-radius:6px;padding:10px 14px;font-size:13px;color:var(--text-muted);margin-bottom:16px">Showing approximate matches from the full search index  -  curated metadata is still generating.</div>`
         : sliceTruncated && !q && !severity && !attackType && !ecosystem
             ? `<div style="background:rgba(124,58,237,0.08);border:1px solid var(--accent-border);border-radius:6px;padding:10px 14px;font-size:13px;color:var(--text-muted);margin-bottom:16px">Showing the ${idx.incidents.length.toLocaleString()} most recent of ${totalInModule.toLocaleString()} total incidents. Use <a href="/${moduleId}/search" style="color:var(--accent)">search</a> to find specific incidents.</div>`
             : ''

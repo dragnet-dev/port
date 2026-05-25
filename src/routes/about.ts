@@ -8,33 +8,42 @@ export function aboutRoute(c: Context<{ Bindings: Env }>) {
         <h1 class="page-title">About Dragnet</h1>
     </div>
 
-    <div style="font-size:15px;color:var(--text-muted);line-height:1.7;display:flex;flex-direction:column;gap:16px">
-        <p>Dragnet is an open source threat intelligence platform. Detection rules, IOC feeds,
-        and hunting queries for every major SIEM — free, with no account required.</p>
+    <div style="font-size:15px;color:var(--text-muted);line-height:1.7;display:flex;flex-direction:column;gap:20px">
+        <p>Dragnet is an open source threat intelligence platform covering supply chain attacks,
+        malware campaigns, ransomware groups, CVEs, container vulnerabilities, and OS-level packages.
+        Detection rules, IOC feeds, and hunting queries for every major SIEM. Free. No account required.</p>
 
-        <p>All intelligence data lives in the public
+        <p>Everything is open. All intelligence data lives in
         <a href="https://github.com/dragnet-dev/haul" target="_blank" rel="noopener">dragnet-dev/haul</a>
-        repository on GitHub. Rules and IOC feeds are published under the CC0 licence — use them anywhere,
-        no attribution needed.</p>
+        on GitHub. Rules and feeds are published under CC0 - use them anywhere, no attribution needed.</p>
 
-        <p>This site (<a href="https://github.com/dragnet-dev/port" target="_blank" rel="noopener">dragnet-dev/port</a>)
-        is a read-only frontend that fetches data directly from the haul repo at request time.
-        It stores nothing. It generates nothing. No user data is collected.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px">
+            <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:16px">
+                <div style="font-size:12px;font-weight:600;letter-spacing:0.4px;text-transform:uppercase;color:var(--text-subtle);margin-bottom:8px">Data</div>
+                <div style="font-size:13px;color:var(--text-muted);line-height:1.6">Continuously updated from public threat reports, CVE databases, ransomware trackers, and package vulnerability feeds.</div>
+            </div>
+            <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:16px">
+                <div style="font-size:12px;font-weight:600;letter-spacing:0.4px;text-transform:uppercase;color:var(--text-subtle);margin-bottom:8px">Rules</div>
+                <div style="font-size:13px;color:var(--text-muted);line-height:1.6">Detection rules for Sentinel, Splunk, Elastic, Sigma, KQL, Chronicle, Suricata, Snort, and more.</div>
+            </div>
+            <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:16px">
+                <div style="font-size:12px;font-weight:600;letter-spacing:0.4px;text-transform:uppercase;color:var(--text-subtle);margin-bottom:8px">IOC Feeds</div>
+                <div style="font-size:13px;color:var(--text-muted);line-height:1.6">Machine-readable feeds: domains, IPs, hashes, STIX bundles. Ingest directly into your tooling via URL.</div>
+            </div>
+            <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:16px">
+                <div style="font-size:12px;font-weight:600;letter-spacing:0.4px;text-transform:uppercase;color:var(--text-subtle);margin-bottom:8px">Privacy</div>
+                <div style="font-size:13px;color:var(--text-muted);line-height:1.6">No cookies. No accounts. No tracking. Nothing is collected or stored about visitors.</div>
+            </div>
+        </div>
 
-        <p>Built with Hono and TypeScript on Cloudflare Pages. Source under MIT, intelligence data under CC0.</p>
-
-        <p style="font-size:13px;color:var(--text-subtle)">Found a security issue in port itself? See our
-        <a href="https://github.com/dragnet-dev/port/blob/main/SECURITY.md" target="_blank" rel="noopener">security policy</a>.</p>
+        <p style="font-size:13px;color:var(--text-subtle)">Found a security issue?
+        <a href="https://github.com/dragnet-dev/port/blob/main/SECURITY.md" target="_blank" rel="noopener" style="color:var(--text-muted)">See our security policy.</a></p>
     </div>
 
     <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap">
-        <a href="https://github.com/dragnet-dev/haul" target="_blank" rel="noopener" class="copy-btn" style="padding:8px 16px">
-            dragnet-dev/haul ↗
-        </a>
-        <a href="https://github.com/dragnet-dev/port" target="_blank" rel="noopener" class="copy-btn" style="padding:8px 16px">
-            dragnet-dev/port ↗
-        </a>
-        <a href="/feeds" class="copy-btn" style="padding:8px 16px">Feeds</a>
+        <a href="https://github.com/dragnet-dev/haul" target="_blank" rel="noopener" class="copy-btn" style="padding:8px 16px">GitHub ↗</a>
+        <a href="/feeds" class="copy-btn" style="padding:8px 16px">IOC Feeds</a>
+        <a href="/actors" class="copy-btn" style="padding:8px 16px">Threat Actors</a>
     </div>
 </div>`
 

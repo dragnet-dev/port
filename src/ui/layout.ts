@@ -20,15 +20,15 @@ export function baseLayout(title: string, content: string, env: Env, currentPath
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${escHtml(title)} — dragnet.dev</title>
+    <title>${escHtml(title)} - dragnet.dev</title>
     <meta name="description" content="${escHtml(SITE_DESCRIPTION)}" />
-    <meta property="og:title" content="${escHtml(title)} — dragnet.dev" />
+    <meta property="og:title" content="${escHtml(title)} - dragnet.dev" />
     <meta property="og:description" content="${escHtml(SITE_DESCRIPTION)}" />
     <meta property="og:image" content="${env.SITE_URL}/icon-128.svg" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="dragnet.dev" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="${escHtml(title)} — dragnet.dev" />
+    <meta name="twitter:title" content="${escHtml(title)} - dragnet.dev" />
     <meta name="twitter:description" content="${escHtml(SITE_DESCRIPTION)}" />
     <meta name="twitter:image" content="${env.SITE_URL}/icon-128.svg" />
     <meta name="theme-color" content="#7c3aed" />
@@ -91,7 +91,7 @@ export function escHtml(str: string | number | null | undefined): string {
 export interface ErrorPageOptions {
     code:    number
     title:   string
-    /** Body HTML — will NOT be escaped, callers are responsible. */
+    /** Body HTML  -  will NOT be escaped, callers are responsible. */
     body:    string
     /** Optional link CTA at the bottom. */
     cta?: { href: string; label: string }

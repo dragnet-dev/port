@@ -102,7 +102,7 @@ export interface Incident {
     model_indicators?: ModelIndicator[]
     references:        string[]
     summary?:          string
-    // Domain-specific extension blocks — at most one is populated, keyed off the
+    // Domain-specific extension blocks  -  at most one is populated, keyed off the
     // incident's source module. Mirrors dragnet's incident.Incident substructs.
     container_ext?:    ContainerExtension
     cve_ext?:          CVEExtension
@@ -116,7 +116,7 @@ export interface IncidentSource {
 }
 
 // IncidentSummary mirrors dragnet/internal/index/generator.go:IncidentSummary.
-// `module` is added by port at fetch time (see routes/home.ts) — dragnet itself
+// `module` is added by port at fetch time (see routes/home.ts)  -  dragnet itself
 // only emits the module name at the index level, not on each incident.
 export interface IncidentSummary {
     id:                    string
@@ -146,7 +146,7 @@ export interface IncidentSummary {
     }
 }
 
-// SearchRecord mirrors dragnet/internal/index/search.go:SearchRecord —
+// SearchRecord mirrors dragnet/internal/index/search.go:SearchRecord  - 
 // the per-incident row written to feeds/search-{module}.jsonl. Smaller than
 // a full Incident; sufficient to render a search result card.
 export interface SearchRecord {
@@ -162,7 +162,7 @@ export interface SearchRecord {
     cve_ids?:     string[]
 }
 
-// Manifest mirrors dragnet/internal/manifest/manifest.go:Manifest —
+// Manifest mirrors dragnet/internal/manifest/manifest.go:Manifest  - 
 // the deterministic per-file inventory written to feeds/manifest.json.
 // Used by port's scheduled handler to invalidate KV cache entries when
 // haul ships an update.
@@ -241,7 +241,7 @@ export interface RootIndex {
     recent?:                  RootRecentEntry[]
 }
 
-// ThreatActor mirrors dragnet/internal/actor/store.go — the YAML written to
+// ThreatActor mirrors dragnet/internal/actor/store.go  -  the YAML written to
 // actors/profiles/{id}.yaml is sourced from the MITRE ATT&CK bundle, so the
 // available fields are MITRE-native (mitre_id, type, ttps, software) rather
 // than the richer threat-intel shape we used pre-MITRE.
@@ -262,7 +262,7 @@ export interface ActorTechnique {
     name: string
 }
 
-// AffectedImage mirrors dragnet/internal/incident/schema.go:AffectedImage —
+// AffectedImage mirrors dragnet/internal/incident/schema.go:AffectedImage  - 
 // the per-image-tag row inside a CVE-centric container incident. One incident
 // covers one CVE; AffectedImages is the list of registry repos hit by that CVE.
 export interface AffectedImage {
@@ -275,7 +275,7 @@ export interface AffectedImage {
     sources?:         string[]
 }
 
-// EOLImageInfo mirrors dragnet/internal/incident/schema.go:EOLImageInfo —
+// EOLImageInfo mirrors dragnet/internal/incident/schema.go:EOLImageInfo  - 
 // emitted for incidents sourced from endoflife.date.
 export interface EOLImageInfo {
     repository:   string
@@ -285,7 +285,7 @@ export interface EOLImageInfo {
 }
 
 // ContainerExtension mirrors dragnet/internal/incident/schema.go:
-// ContainerExtension — the container-module extension block on an Incident.
+// ContainerExtension  -  the container-module extension block on an Incident.
 export interface ContainerExtension {
     affected_images?:   AffectedImage[]
     eol_images?:        EOLImageInfo[]

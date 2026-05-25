@@ -106,44 +106,27 @@ nav {
 .module-links {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 16px;
 }
 
-/* Live module links are tab-style pills with a soft tinted background using
- * the module accent colour. Coming-soon spans are flat muted text — clearly
- * different shape, no border, smaller. */
 .mod {
     font-size: 13px;
-    padding: 5px 10px;
-    border-radius: 6px;
     text-decoration: none;
     white-space: nowrap;
-    transition: background 0.1s, color 0.1s;
     color: var(--text-muted);
 }
 
 a.mod {
-    color: var(--text);
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-subtle);
-    font-weight: 500;
+    color: var(--text-muted);
+    font-weight: 400;
 }
-a.mod:hover { border-color: var(--border); text-decoration: none; color: var(--text); }
-a.mod.active { border-color: var(--accent-border); background: var(--accent-light); }
-
-a.mod.supply      { box-shadow: inset 2px 0 0 var(--supply);      padding-left: 12px; }
-a.mod.malware     { box-shadow: inset 2px 0 0 var(--malware);     padding-left: 12px; }
-a.mod.ransomware  { box-shadow: inset 2px 0 0 var(--ransomware);  padding-left: 12px; }
-a.mod.cve         { box-shadow: inset 2px 0 0 var(--cve);         padding-left: 12px; }
-a.mod.container   { box-shadow: inset 2px 0 0 var(--container);   padding-left: 12px; }
-a.mod.os-packages { box-shadow: inset 2px 0 0 var(--os-packages); padding-left: 12px; }
+a.mod:hover { color: var(--text); text-decoration: none; }
+a.mod.active { color: var(--text); font-weight: 500; }
 
 .mod.coming-soon {
     color: var(--text-subtle);
-    cursor: not-allowed;
-    opacity: 0.6;
-    padding: 5px 8px;
-    font-size: 12px;
+    cursor: default;
+    font-size: 13px;
 }
 
 /* Search lives at the right edge, next to nav-right links. Compact so it
@@ -405,30 +388,7 @@ a.mod.os-packages { box-shadow: inset 2px 0 0 var(--os-packages); padding-left: 
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
 @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
 
-/* Tablet nav (721px–1270px): logo + search + links on row 1, pills scroll on row 2.
- * 6 live module pills exceed the horizontal space below ~1271px. */
-@media (min-width: 721px) and (max-width: 1270px) {
-    nav {
-        flex-wrap: wrap;
-        gap: 8px 12px;
-        padding: 10px 16px;
-    }
-    .module-links {
-        order: 2;
-        overflow-x: auto;
-        scrollbar-width: thin;
-        width: 100%;
-        min-width: 0;
-    }
-    .nav-search {
-        margin-left: 0;
-        flex: 1;
-        min-width: 120px;
-    }
-}
-
-/* Mobile nav: stack the search bar onto its own row, allow module-links to
- * scroll horizontally, hide About (still in footer). */
+/* Mobile nav: stack search onto its own row; module links and nav-right share row 1. */
 @media (max-width: 720px) {
     nav {
         flex-wrap: wrap;
@@ -439,9 +399,10 @@ a.mod.os-packages { box-shadow: inset 2px 0 0 var(--os-packages); padding-left: 
     .module-links {
         order: 2;
         overflow-x: auto;
-        scrollbar-width: thin;
+        scrollbar-width: none;
         width: 100%;
         min-width: 0;
+        gap: 12px;
     }
     .nav-search {
         order: 3;

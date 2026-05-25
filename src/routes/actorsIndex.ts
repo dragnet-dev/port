@@ -52,7 +52,7 @@ export async function actorsIndexRoute(c: Context<{ Bindings: Env }>) {
             byLetter.set(letter, group)
         }
 
-        // A-Z jump bar — only show letters that exist.
+        // A-Z jump bar  -  only show letters that exist.
         const letters = [...byLetter.keys()].sort()
         const jumpBar = `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:24px">
             ${letters.map(l => `<a href="#actor-${encodeURIComponent(l)}" style="display:inline-block;min-width:28px;padding:3px 6px;text-align:center;font-size:12px;font-weight:600;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:4px;color:var(--text-muted)">${escHtml(l)}</a>`).join('')}

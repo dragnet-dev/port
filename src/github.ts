@@ -18,7 +18,7 @@ export async function fetchHaulIndex(env: Env): Promise<HaulIndex> {
 }
 
 // Cloudflare KV's value limit is 25 MiB. Files larger than this are served
-// via Cloudflare's edge cache (cf: hint) instead — still fast after the first
+// via Cloudflare's edge cache (cf: hint) instead  -  still fast after the first
 // PoP hit, just not worker-local. Smaller files get both: KV for worker-local
 // speed and the cf: hint for PoP-level deduplication.
 const KV_MAX_BYTES = 24 * 1024 * 1024
@@ -59,7 +59,7 @@ export async function fetchIndex(env: Env, module: string): Promise<IncidentInde
     return raw ? JSON.parse(raw) as IncidentIndex : null
 }
 
-// fetchHomeSlice returns the pre-computed home-page slice for a module —
+// fetchHomeSlice returns the pre-computed home-page slice for a module  - 
 // a trimmed IncidentIndex (top-500 most-recent incidents + full stats)
 // written to KV by the scheduled handler. Falls back to fetchIndex when
 // the slice hasn't been built yet (first deploy, before cron has run).
@@ -76,8 +76,8 @@ export async function fetchRootIndex(env: Env): Promise<RootIndex | null> {
     return raw ? JSON.parse(raw) as RootIndex : null
 }
 
-// normalizeIncident maps the raw JSONL/YAML shape — which varies between
-// curated YAML incidents and bulk-imported JSONL incidents — to the clean
+// normalizeIncident maps the raw JSONL/YAML shape  -  which varies between
+// curated YAML incidents and bulk-imported JSONL incidents  -  to the clean
 // Incident interface the renderer expects. Key differences in the JSONL format:
 //   - campaign/actor can be empty objects {}  instead of strings
 //   - published may be absent; compromise_window.start carries the timestamp
@@ -99,7 +99,7 @@ function normalizeIncident(raw: unknown): Incident {
 
     const compromiseWindow = r.compromise_window as Record<string, string> | undefined
 
-    // sources: typed array > single source string > empty (never use references[] here —
+    // sources: typed array > single source string > empty (never use references[] here  - 
     // references belong in the References section, not as source attribution chips).
     //
     // For single-source incidents (JSONL bulk imports), the source ID is a short slug
@@ -139,7 +139,7 @@ function normalizeIncident(raw: unknown): Incident {
     }
     let sources: Incident['sources'] = []
     if (Array.isArray(r.sources) && r.sources.length > 0) {
-        // Schema emits sources as string IDs (e.g. ["nvd", "ghsa"]) — convert each
+        // Schema emits sources as string IDs (e.g. ["nvd", "ghsa"])  -  convert each
         // to an IncidentSource with a display name and a matched reference URL.
         sources = (r.sources as unknown[])
             .filter(s => typeof s === 'string' && s.length > 0)
@@ -155,7 +155,7 @@ function normalizeIncident(raw: unknown): Incident {
 
     const packages = (Array.isArray(r.packages) ? r.packages : []).map((p: unknown) => {
         const pkg = p as Record<string, unknown>
-        // Schema field is affected_versions; curated YAML may use versions — accept either.
+        // Schema field is affected_versions; curated YAML may use versions  -  accept either.
         const versions = Array.isArray(pkg.versions) ? pkg.versions as string[]
             : Array.isArray(pkg.affected_versions) ? pkg.affected_versions as string[]
             : []
@@ -173,7 +173,7 @@ function normalizeIncident(raw: unknown): Incident {
     let iocs: Incident['iocs'] = Array.isArray(r.iocs) ? r.iocs as Incident['iocs'] : []
     if (iocs.length === 0 && r.indicators && typeof r.indicators === 'object') {
         const ind = r.indicators as Record<string, unknown>
-        // Private/loopback IP prefixes — not useful as external IOCs.
+        // Private/loopback IP prefixes  -  not useful as external IOCs.
         const isPrivateIP = (v: string) =>
             /^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|127\.|0\.0\.0\.0|::1$|fc00:|fe80:)/i.test(v)
         const add = (type: string, items: unknown[], valueKey = 'value', contextFn?: (i: Record<string, unknown>) => string) => {
@@ -325,14 +325,14 @@ async function fetchIncidentFromShard(env: Env, module: string, id: string): Pro
                 ...info.nums.map(n => `${module}/incidents/all/${shard}-${n}.jsonl`),
             ]
         } catch {
-            // Corrupt KV entry — fall back to sequential probe
+            // Corrupt KV entry  -  fall back to sequential probe
             candidates = [
                 `${module}/incidents/all/${shard}.jsonl`,
                 ...Array.from({ length: 16 }, (_, i) => `${module}/incidents/all/${shard}-${i}.jsonl`),
             ]
         }
     } else {
-        // shard-nums not populated yet (before first scheduled run) — probe sequentially
+        // shard-nums not populated yet (before first scheduled run)  -  probe sequentially
         candidates = [
             `${module}/incidents/all/${shard}.jsonl`,
             ...Array.from({ length: 16 }, (_, i) => `${module}/incidents/all/${shard}-${i}.jsonl`),
@@ -345,7 +345,7 @@ async function fetchIncidentFromShard(env: Env, module: string, id: string): Pro
     for (const path of candidates) {
         const url = `${intelBase}/${path}`
         const res = await fetch(url, { headers: { 'User-Agent': `${env.SITE_URL}/port` } })
-        if (!res.ok) continue   // shard doesn't exist — try the next one
+        if (!res.ok) continue   // shard doesn't exist  -  try the next one
         if (!res.body) continue
 
         const result = await scanJSONLStream(res.body, id)
@@ -405,7 +405,7 @@ export async function fetchSearchIndex(env: Env, module: string): Promise<Search
 }
 
 // ruleURL returns the local proxy path for a rule file (served via /rules/).
-// Use this for fetch() calls from client-side JS — it avoids CORS issues and
+// Use this for fetch() calls from client-side JS  -  it avoids CORS issues and
 // lets the Worker cache satellite rule content in KV.
 export function ruleURL(
     _index: HaulIndex, _env: Env,
@@ -414,7 +414,7 @@ export function ruleURL(
     return `/rules/${encodeURIComponent(module)}/${encodeURIComponent(platformId)}/${encodeURIComponent(layer)}/${encodeURIComponent(filename)}`
 }
 
-// ruleGithubURL returns the full GitHub raw URL for a rule file — used for
+// ruleGithubURL returns the full GitHub raw URL for a rule file  -  used for
 // the "Raw ↗" link shown to users so they can open the original source.
 export function ruleGithubURL(
     index: HaulIndex, env: Env,

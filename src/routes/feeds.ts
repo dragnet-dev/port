@@ -28,10 +28,10 @@ const FEEDS: FeedEntry[] = [
 ]
 
 const USAGE_NOTES: Record<FeedKind, string> = {
-    text:  'One IOC per line — drop into any SIEM watchlist, EDR custom indicator list, or DNS sinkhole.',
-    json:  'Flat JSON array — parse with <code>jq</code>, <code>requests.json()</code>, or import into a TIP.',
-    jsonl: 'Newline-delimited JSON — stream with <code>jq -c</code> or pipe into row-oriented ETL.',
-    stix:  'STIX 2.1 bundle — import via Microsoft Sentinel TI connector, OpenCTI, Anomali ThreatStream, or any STIX-aware TIP.',
+    text:  'One IOC per line  -  drop into any SIEM watchlist, EDR custom indicator list, or DNS sinkhole.',
+    json:  'Flat JSON array  -  parse with <code>jq</code>, <code>requests.json()</code>, or import into a TIP.',
+    jsonl: 'Newline-delimited JSON  -  stream with <code>jq -c</code> or pipe into row-oriented ETL.',
+    stix:  'STIX 2.1 bundle  -  import via Microsoft Sentinel TI connector, OpenCTI, Anomali ThreatStream, or any STIX-aware TIP.',
 }
 
 const MODULE_LABELS: Record<string, string> = {

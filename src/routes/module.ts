@@ -26,14 +26,14 @@ export async function moduleRoute(c: Context<{ Bindings: Env }>) {
 
     const idx = await fetchHomeSlice(c.env, moduleId)
     if (!idx) {
-        // Module is live but data hasn't synced yet — show a holding page rather
+        // Module is live but data hasn't synced yet  -  show a holding page rather
         // than a 503. The scheduled handler will build the KV slice on next cron fire.
         const html = `<div class="container page">
     <div class="coming-soon-page">
         <div class="coming-soon-icon">${mod.icon}</div>
         <h1>${escHtml(mod.name)}</h1>
         <p>${escHtml(mod.description)}</p>
-        <p style="font-size:13px;color:var(--text-subtle)">Data is syncing — check back shortly.</p>
+        <p style="font-size:13px;color:var(--text-subtle)">Data is syncing. Check back shortly.</p>
     </div>
 </div>`
         return c.html(baseLayout(mod.name, html, c.env, `/${moduleId}`))

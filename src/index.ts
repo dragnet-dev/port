@@ -22,7 +22,7 @@ import { baseLayout, errorPage } from './ui/layout'
 import { scheduled } from './scheduled'
 import type { Env } from './types'
 
-// Exported for the test harness — vitest uses app.request(url, init, env) to
+// Exported for the test harness  -  vitest uses app.request(url, init, env) to
 // exercise routes without spinning up wrangler. The Worker entry-point below
 // is the default export.
 export const app = new Hono<{ Bindings: Env }>()
@@ -59,7 +59,7 @@ app.use('*', async (c, next) => {
     c.res.headers.set('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=600')
 })
 
-// /_health — minimal liveness endpoint for external uptime monitors.
+// /_health  -  minimal liveness endpoint for external uptime monitors.
 // Registered first so the /:module catch-all doesn't shadow it.
 app.get('/_health', (c) => {
     c.header('Cache-Control', 'no-store')
@@ -85,7 +85,7 @@ app.get('/ransomware/incidents/:id',     cveIncidentRoute('ransomware'))
 app.get('/os-packages/incidents/:id',    osPackageIncidentRoute)
 app.get('/:module/incidents/:id',        incidentRoute)
 
-// /api/index — union of every live module's curated incident index, used by
+// /api/index  -  union of every live module's curated incident index, used by
 // the in-page search/typeahead in public/assets/app.js. Subject to change;
 // not a stable public API. See README for the response shape.
 app.get('/api/index', async (c) => {

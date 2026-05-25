@@ -4,7 +4,7 @@ import { verifyTurnstile } from '../turnstile'
 import type { Env } from '../types'
 
 // ContainerImageEntry mirrors dragnet/internal/ioc/exporter.go:ContainerImageEntry
-// — the rows written to container/feeds/container-images.json.
+//  -  the rows written to container/feeds/container-images.json.
 interface ContainerImageEntry {
     type:        'container_image' | 'container_image_eol'
     repository:  string

@@ -6,7 +6,7 @@ import type { Env } from '../types'
 const VALID_MODULES  = new Set(MODULES.map(m => m.id))
 const VALID_PLATFORMS = new Set(PLATFORMS.map(p => p.id))
 
-// Safe segment: alphanumeric, dots, hyphens, underscores — but NOT '..' or
+// Safe segment: alphanumeric, dots, hyphens, underscores  -  but NOT '..' or
 // a leading dot. The '..' check is load-bearing: /^[a-zA-Z0-9._-]+$/ would
 // match '..' (two dots), which could traverse directories in the upstream URL.
 const SAFE_SEGMENT = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/

@@ -76,8 +76,8 @@ export function incidentCard(inc: IncidentSummary, module: string): string {
 }
 
 // searchResultCard renders one SearchRecord. The shape is leaner than the
-// curated IncidentSummary used in incidentCard — no attack_type, source_count,
-// IOCs, or campaign — but it covers every incident in haul, not just the
+// curated IncidentSummary used in incidentCard  -  no attack_type, source_count,
+// IOCs, or campaign  -  but it covers every incident in haul, not just the
 // curated 5K.
 export function searchResultCard(rec: SearchRecord): string {
     const sev = rec.severity ? severityBadge(rec.severity) : ''
@@ -118,7 +118,7 @@ export function searchResultCard(rec: SearchRecord): string {
 
 export function confidenceBar(confidence: number | undefined, sources: string[] = []): string {
     // Bulk-imported records (urlhaus, malware_bazaar, CISA, etc.) don't carry
-    // a confidence score. Zero is also treated as absent — showing "0.00" is
+    // a confidence score. Zero is also treated as absent  -  showing "0.00" is
     // misleading when the engine simply never assigned a score.
     if (!confidence || isNaN(confidence)) {
         if (!sources.length) return ''
@@ -227,7 +227,7 @@ export function exposureBlock(exposure: ExposureData): string {
 
     if (exposure.ide_artefacts?.length) {
         html += `<div class="exposure-section">
-    <div class="exposure-label">IDE artefacts (survive npm uninstall — check separately)</div>
+    <div class="exposure-label">IDE artefacts (survive npm uninstall  -  check separately)</div>
     ${exposure.ide_artefacts.map(f => `
     <div class="exposure-row">
         <code>${escHtml(f)}</code>
@@ -268,7 +268,7 @@ export function ruleAccordion(incident: Incident, module: string, index: HaulInd
         const filesJson = escHtml(JSON.stringify(files))
         const sentinelNote = platform.id === 'sentinel' ? `
     <div class="sentinel-note" data-sentinel-note>
-        <strong>Connect directly — no copy-paste needed.</strong>
+        <strong>Connect directly  -  no copy-paste needed.</strong>
         Sentinel &gt; Content Hub &gt; Repositories &gt; Connect GitHub<br/>
         <code>${escHtml(sentinelRepo)} / ${escHtml(module)}/rules/sentinel/</code>
     </div>` : ''
@@ -384,7 +384,7 @@ export function affectedImagesBlock(images: AffectedImage[]): string {
 }
 
 // eolImagesBlock renders end-of-life image rows for incidents sourced from
-// endoflife.date — repository + cycle + EOL date + suggested replacement.
+// endoflife.date  -  repository + cycle + EOL date + suggested replacement.
 export function eolImagesBlock(images: EOLImageInfo[]): string {
     if (!images.length) return ''
     const rows = images.map(img => `

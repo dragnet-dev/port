@@ -1,8 +1,8 @@
 // Scheduled handler: runs on a cron (see wrangler.toml [triggers]) and keeps
 // port's KV cache in sync with haul.
 //
-// dragnet writes feeds/manifest.json — a deterministic per-file inventory
-// with sha256 hashes — every time it generates new haul output. On each
+// dragnet writes feeds/manifest.json  -  a deterministic per-file inventory
+// with sha256 hashes  -  every time it generates new haul output. On each
 // trigger we:
 //
 //   1. Fetch manifest.json (bypassing our own KV).
@@ -13,16 +13,16 @@
 //      next user request re-fetches from haul instead of serving the stale
 //      cached body.
 //   4. For shard files under `{module}/incidents/all/`, also purge the
-//      per-incident `inc:` cache entries for that module — those are derived
+//      per-incident `inc:` cache entries for that module  -  those are derived
 //      from the shard contents and would otherwise stay stale for up to 24h.
 //   5. Extract the IOC count (feeds/unified.jsonl records field) from the
-//      manifest and store it at `_stats:ioc_count` — avoids home page having
+//      manifest and store it at `_stats:ioc_count`  -  avoids home page having
 //      to download the full 50 MB manifest at request time.
 //   6. For any module whose incidents/index.json changed, rebuild the
 //      `_home:${module}` KV slice (top-500 most-recent IncidentSummaries +
 //      full stats) so the home page reads tiny KV entries instead of the
 //      raw index (which can exceed KV's 25 MiB limit for supply).
-//   7. Persist the new snapshot under `_manifest:last_seen` (7d TTL — long
+//   7. Persist the new snapshot under `_manifest:last_seen` (7d TTL  -  long
 //      enough to survive long gaps in cron firing, short enough that an
 //      orphaned key eventually self-cleans).
 
@@ -34,7 +34,7 @@ const KV_MAX_BYTES = 24 * 1024 * 1024
 
 // trackable returns true for paths we include in the manifest snapshot.
 // The manifest lists 180k+ rule YAMLs (*/rules/**) that are served from
-// satellite repos — we never fetchRaw them. We also skip individual incident
+// satellite repos  -  we never fetchRaw them. We also skip individual incident
 // YAMLs (200k+ in supply). Keeping only the small set we actually cache via
 // fetchRaw keeps the snapshot well under KV's 25 MiB limit.
 function trackable(path: string): boolean {
@@ -47,7 +47,7 @@ function trackable(path: string): boolean {
     return false
 }
 
-// Exported for unit testing — pure diff function with no side effects.
+// Exported for unit testing  -  pure diff function with no side effects.
 export function diffManifest(
     previous: Record<string, string>,
     current:  Manifest,
@@ -98,8 +98,8 @@ async function syncManifest(env: Env): Promise<void> {
     const { changed, removed } = diffManifest(previous, manifest)
     const toInvalidate = [...changed, ...removed]
 
-    // Always update the IOC count and home slices — even on first run when
-    // toInvalidate is empty — so a fresh deploy is immediately usable.
+    // Always update the IOC count and home slices  -  even on first run when
+    // toInvalidate is empty  -  so a fresh deploy is immediately usable.
     await updateIocCount(env, manifest)
     await buildShardNums(env, manifest)
     await buildHomeSlices(env, haulIndex, toInvalidate)
@@ -121,7 +121,7 @@ async function syncManifest(env: Env): Promise<void> {
     await Promise.all(toInvalidate.map(path => env.CACHE.delete(`raw:${path}`)))
 
     // For shard changes, also purge the per-incident inc: entries for the
-    // affected module — they're derived from the shard contents.
+    // affected module  -  they're derived from the shard contents.
     const touchedModules = new Set<string>()
     for (const path of toInvalidate) {
         const m = path.match(/^([^/]+)\/incidents\/all\/.+\.jsonl$/)
@@ -129,7 +129,7 @@ async function syncManifest(env: Env): Promise<void> {
     }
     await Promise.all([...touchedModules].map(mod => purgeIncByPrefix(env, `inc:${mod}:`)))
 
-    // Persist the new snapshot. 7d TTL — long enough to survive cron gaps,
+    // Persist the new snapshot. 7d TTL  -  long enough to survive cron gaps,
     // short enough that the key isn't orphaned forever if we change schemes.
     const snapshot: Record<string, string> = {}
     for (const f of manifest.files) if (trackable(f.path)) snapshot[f.path] = f.sha256
@@ -190,7 +190,7 @@ async function buildHomeSlices(
             continue
         }
 
-        // Sort descending by published date and cap at HOME_SLICE_LIMIT —
+        // Sort descending by published date and cap at HOME_SLICE_LIMIT  - 
         // more than enough for 6-recent + 6-trending cards. Trending score
         // decays to zero after 30 days so older incidents never win anyway.
         // Keep well under the 25 MiB KV limit: 200 IncidentSummary rows ≈
